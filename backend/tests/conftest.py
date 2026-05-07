@@ -4,7 +4,6 @@ Usa banco SQLite em memória para isolamento (sem dependência de PostgreSQL nos
 """
 from __future__ import annotations
 
-import asyncio
 import uuid
 from typing import AsyncGenerator
 
@@ -49,6 +48,8 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides.clear()
 
 
+# ── Usuários de teste ─────────────────────────────────────────────────────────
+
 @pytest_asyncio.fixture
 async def admin_user(db_session: AsyncSession):
     from app.db.models.user import User
@@ -81,15 +82,98 @@ async def perito_user(db_session: AsyncSession):
     return user
 
 
-@pytest.fixture
-def admin_token(admin_user) -> str:
+@pytest_asyncio.fixture
+async def analista_user(db_session: AsyncSession):
+    from app.db.models.user import User
+    user = User(
+        id=str(uuid.uuid4()),
+        email="analista@teste.com",
+        full_name="Analista Teste",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role=Role.ANALISTA.value,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    return user
+
+
+@pytest_asyncio.fixture
+async def revisor_user(db_session: AsyncSession):
+    from app.db.models.user import User
+    user = User(
+        id=str(uuid.uuid4()),
+        email="revisor@teste.com",
+        full_name="Revisor Teste",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role=Role.REVISOR.value,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    return user
+
+
+@pytest_asyncio.fixture
+async def leitura_user(db_session: AsyncSession):
+    from app.db.models.user import User
+    user = User(
+        id=str(uuid.uuid4()),
+        email="leitura@teste.com",
+        full_name="Leitura Teste",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role=Role.LEITURA.value,
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    return user
+
+
+@pytest_asyncio.fixture
+async def inactive_user(db_session: AsyncSession):
+    from app.db.models.user import User
+    user = User(
+        id=str(uuid.uuid4()),
+        email="inativo@teste.com",
+        full_name="Usuário Inativo",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role=Role.LEITURA.value,
+        is_active=False,
+    )
+    db_session.add(user)
+    await db_session.flush()
+    return user
+
+
+# ── Tokens ────────────────────────────────────────────────────────────────────
+
+@pytest_asyncio.fixture
+async def admin_token(admin_user) -> str:
     return create_access_token(subject=admin_user.id, role=Role.ADMIN)
 
 
-@pytest.fixture
-def perito_token(perito_user) -> str:
+@pytest_asyncio.fixture
+async def perito_token(perito_user) -> str:
     return create_access_token(subject=perito_user.id, role=Role.PERITO)
 
+
+@pytest_asyncio.fixture
+async def analista_token(analista_user) -> str:
+    return create_access_token(subject=analista_user.id, role=Role.ANALISTA)
+
+
+@pytest_asyncio.fixture
+async def revisor_token(revisor_user) -> str:
+    return create_access_token(subject=revisor_user.id, role=Role.REVISOR)
+
+
+@pytest_asyncio.fixture
+async def leitura_token(leitura_user) -> str:
+    return create_access_token(subject=leitura_user.id, role=Role.LEITURA)
+
+
+# ── Caso de teste ─────────────────────────────────────────────────────────────
 
 @pytest_asyncio.fixture
 async def sample_case(db_session: AsyncSession, perito_user):

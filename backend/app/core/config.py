@@ -46,10 +46,21 @@ class Settings(BaseSettings):
     MINIO_BUCKET_DOCUMENTS: str = "officejoe-documents"
     MINIO_SECURE: bool = False
 
+    # ── JWT ───────────────────────────────────────────────────────────────
+    JWT_SECRET_KEY: str = ""          # defaults to APP_SECRET_KEY when blank
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # ── Bcrypt ────────────────────────────────────────────────────────────
+    BCRYPT_ROUNDS: int = 12
+
     @model_validator(mode="after")
-    def _validate_secret_strength(self) -> "Settings":
+    def _validate_secrets(self) -> "Settings":
         if len(self.APP_SECRET_KEY) < 32:
             raise ValueError("APP_SECRET_KEY precisa ter ao menos 32 caracteres")
+        if not self.JWT_SECRET_KEY:
+            self.JWT_SECRET_KEY = self.APP_SECRET_KEY
         return self
 
 

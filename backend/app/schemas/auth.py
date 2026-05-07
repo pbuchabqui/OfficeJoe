@@ -26,17 +26,27 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+_VALID_ROLES = {"admin", "perito", "analista", "revisor", "leitura"}
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     full_name: str
     password: str
-    role: str = "visualizador"
+    role: str = "leitura"
 
     @field_validator("password")
     @classmethod
     def password_strength(cls, v: str) -> str:
         if len(v) < 8:
             raise ValueError("Senha deve ter ao menos 8 caracteres.")
+        return v
+
+    @field_validator("role")
+    @classmethod
+    def role_must_be_valid(cls, v: str) -> str:
+        if v not in _VALID_ROLES:
+            raise ValueError(f"Perfil inválido. Opções: {', '.join(sorted(_VALID_ROLES))}")
         return v
 
 

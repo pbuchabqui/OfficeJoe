@@ -21,7 +21,7 @@ class Role(Base, TimestampMixin):
     """
     Papel de acesso no sistema.
 
-    name        – chave de negócio (admin, perito, assistente, visualizador).
+    name        – chave de negócio (admin, perito, analista, revisor, leitura).
                   Usada como FK textual em users.role para consultas legíveis
                   sem join.
     description – explicação em linguagem natural do papel.
@@ -60,9 +60,10 @@ DEFAULT_ROLES = [
         "name": "perito",
         "description": "Perito responsável pelo processo — acesso completo ao processo",
         "permissions": [
-            "case:read", "case:write",
-            "document:read", "document:write",
+            "case:read", "case:write", "case:delete",
+            "document:read", "document:write", "document:delete",
             "ocr:run",
+            "extraction:read", "extraction:write",
             "evidence:read", "evidence:write", "evidence:validate",
             "quesito:read", "quesito:write",
             "calc:read", "calc:write",
@@ -72,23 +73,38 @@ DEFAULT_ROLES = [
         ],
     },
     {
-        "name": "assistente",
-        "description": "Assistente do perito — leitura e escrita, sem validação e laudo",
+        "name": "analista",
+        "description": "Analista do perito — leitura e escrita, sem validação e laudo",
         "permissions": [
             "case:read", "case:write",
             "document:read", "document:write",
             "ocr:run",
+            "extraction:read",
             "evidence:read",
             "quesito:read",
             "ai:query",
         ],
     },
     {
-        "name": "visualizador",
+        "name": "revisor",
+        "description": "Revisor — leitura completa e validação de extrações e provas",
+        "permissions": [
+            "case:read",
+            "document:read",
+            "extraction:read", "extraction:validate",
+            "evidence:read", "evidence:validate",
+            "quesito:read", "quesito:review",
+            "ai:query", "ai:review",
+            "audit:read",
+        ],
+    },
+    {
+        "name": "leitura",
         "description": "Acesso somente leitura ao processo",
         "permissions": [
             "case:read",
             "document:read",
+            "extraction:read",
             "evidence:read",
             "quesito:read",
         ],

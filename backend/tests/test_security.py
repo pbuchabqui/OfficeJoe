@@ -3,7 +3,6 @@ Testes para segurança: JWT, hashing de senhas e RBAC.
 """
 from __future__ import annotations
 
-import time
 import pytest
 from jose import JWTError
 
@@ -64,13 +63,21 @@ def test_create_and_decode_refresh_token():
     assert payload["type"] == "refresh"
 
 
+def test_refresh_token_rejected_as_access():
+    """Refresh token não deve ser aceito como access token."""
+    token = create_refresh_token(subject="user-789", role=Role.PERITO)
+    payload = decode_token(token)
+    assert payload["type"] == "refresh"
+    assert payload["type"] != "access"
+
+
 def test_invalid_token_raises():
     with pytest.raises(JWTError):
         decode_token("token.invalido.qualquer")
 
 
 def test_tampered_token_raises():
-    token = create_access_token(subject="user-789", role=Role.VISUALIZADOR)
+    token = create_access_token(subject="user-789", role=Role.LEITURA)
     tampered = token[:-5] + "XXXXX"
     with pytest.raises(JWTError):
         decode_token(tampered)
@@ -88,19 +95,47 @@ def test_perito_permissions():
     assert has_permission(Role.PERITO, "case:read") is True
     assert has_permission(Role.PERITO, "document:write") is True
     assert has_permission(Role.PERITO, "ai:query") is True
+    assert has_permission(Role.PERITO, "evidence:validate") is True
+    assert has_permission(Role.PERITO, "report:write") is True
 
 
-def test_visualizador_cannot_write():
-    assert has_permission(Role.VISUALIZADOR, "document:write") is False
-    assert has_permission(Role.VISUALIZADOR, "case:delete") is False
-    assert has_permission(Role.VISUALIZADOR, "ai:query") is False
+def test_analista_can_write_documents():
+    assert has_permission(Role.ANALISTA, "case:read") is True
+    assert has_permission(Role.ANALISTA, "document:write") is True
+    assert has_permission(Role.ANALISTA, "ocr:run") is True
+    assert has_permission(Role.ANALISTA, "ai:query") is True
 
 
-def test_visualizador_can_read():
-    assert has_permission(Role.VISUALIZADOR, "case:read") is True
-    assert has_permission(Role.VISUALIZADOR, "document:read") is True
+def test_analista_cannot_delete_or_validate():
+    assert has_permission(Role.ANALISTA, "case:delete") is False
+    assert has_permission(Role.ANALISTA, "document:delete") is False
+    assert has_permission(Role.ANALISTA, "evidence:validate") is False
+    assert has_permission(Role.ANALISTA, "ai:review") is False
 
 
-def test_assistente_cannot_delete():
-    assert has_permission(Role.ASSISTENTE, "case:delete") is False
-    assert has_permission(Role.ASSISTENTE, "document:delete") is False
+def test_revisor_can_validate():
+    assert has_permission(Role.REVISOR, "extraction:validate") is True
+    assert has_permission(Role.REVISOR, "evidence:validate") is True
+    assert has_permission(Role.REVISOR, "quesito:review") is True
+    assert has_permission(Role.REVISOR, "ai:review") is True
+    assert has_permission(Role.REVISOR, "audit:read") is True
+
+
+def test_revisor_cannot_write():
+    assert has_permission(Role.REVISOR, "case:write") is False
+    assert has_permission(Role.REVISOR, "document:write") is False
+    assert has_permission(Role.REVISOR, "quesito:write") is False
+
+
+def test_leitura_cannot_write():
+    assert has_permission(Role.LEITURA, "document:write") is False
+    assert has_permission(Role.LEITURA, "case:delete") is False
+    assert has_permission(Role.LEITURA, "ai:query") is False
+    assert has_permission(Role.LEITURA, "ocr:run") is False
+
+
+def test_leitura_can_read():
+    assert has_permission(Role.LEITURA, "case:read") is True
+    assert has_permission(Role.LEITURA, "document:read") is True
+    assert has_permission(Role.LEITURA, "extraction:read") is True
+    assert has_permission(Role.LEITURA, "evidence:read") is True

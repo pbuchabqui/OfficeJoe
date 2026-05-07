@@ -20,8 +20,9 @@ settings = get_settings()
 class Role(str, Enum):
     ADMIN = "admin"
     PERITO = "perito"
-    ASSISTENTE = "assistente"
-    VISUALIZADOR = "visualizador"
+    ANALISTA = "analista"
+    REVISOR = "revisor"
+    LEITURA = "leitura"
 
 
 ROLE_PERMISSIONS: Dict[Role, List[str]] = {
@@ -30,21 +31,36 @@ ROLE_PERMISSIONS: Dict[Role, List[str]] = {
         "case:read", "case:write", "case:delete",
         "document:read", "document:write", "document:delete",
         "ocr:run", "extraction:read", "extraction:write",
+        "evidence:read", "evidence:write", "evidence:validate",
         "quesito:read", "quesito:write",
+        "calc:read", "calc:write",
+        "report:read", "report:write",
         "ai:query", "ai:review",
         "audit:read",
     ],
-    Role.ASSISTENTE: [
+    Role.ANALISTA: [
         "case:read", "case:write",
         "document:read", "document:write",
-        "ocr:run", "extraction:read",
+        "ocr:run",
+        "extraction:read",
+        "evidence:read",
         "quesito:read",
         "ai:query",
     ],
-    Role.VISUALIZADOR: [
+    Role.REVISOR: [
+        "case:read",
+        "document:read",
+        "extraction:read", "extraction:validate",
+        "evidence:read", "evidence:validate",
+        "quesito:read", "quesito:review",
+        "ai:query", "ai:review",
+        "audit:read",
+    ],
+    Role.LEITURA: [
         "case:read",
         "document:read",
         "extraction:read",
+        "evidence:read",
         "quesito:read",
     ],
 }
