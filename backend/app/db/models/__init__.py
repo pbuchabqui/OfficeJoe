@@ -19,6 +19,16 @@ from app.db.models.evidence_matrix_item import EvidenceMatrixItem
 from app.db.models.diligence import Diligence
 from app.db.models.diligence_item import DiligenceItem
 from app.db.models.technical_limitation import TechnicalLimitation
+from app.db.models.holerite_extraction import (
+    HoleriteExtraction,
+    HoleriteField,
+    HoleriteVerba,
+    HoleriteExtractionStatus,
+    HoleriteFieldType,
+    HoleriteFieldValidationStatus,
+    HoleriteLayoutVariant,
+    VerbaTipo,
+)
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -39,4 +49,12 @@ __all__ = [
     "Diligence",
     "DiligenceItem",
     "TechnicalLimitation",
+    "HoleriteExtraction",
+    "HoleriteField",
+    "HoleriteVerba",
+    "HoleriteExtractionStatus",
+    "HoleriteFieldType",
+    "HoleriteFieldValidationStatus",
+    "HoleriteLayoutVariant",
+    "VerbaTipo",
 ]
