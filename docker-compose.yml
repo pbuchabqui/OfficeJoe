@@ -1,7 +1,11 @@
 version: "3.9"
 
+# Fase inicial: apenas os serviços necessários para subir a API.
+# Celery workers, frontend e serviços de OCR serão adicionados em prompts futuros.
+
 services:
-  # ── PostgreSQL com pgvector ──────────────────────────────────────────────
+
+  # ── PostgreSQL + pgvector ──────────────────────────────────────────────
   db:
     image: ankane/pgvector:latest
     restart: unless-stopped
@@ -11,7 +15,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/db_init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
@@ -20,7 +23,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Redis ────────────────────────────────────────────────────────────────
+  # ── Redis ─────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -35,7 +38,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── MinIO (S3-compatible storage) ────────────────────────────────────────
+  # ── MinIO ─────────────────────────────────────────────────────────────
   minio:
     image: minio/minio:latest
     restart: unless-stopped
@@ -46,23 +49,21 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Console web
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
-      timeout: 20s
+      timeout: 10s
       retries: 3
 
-  # ── Backend FastAPI ──────────────────────────────────────────────────────
+  # ── Backend FastAPI ────────────────────────────────────────────────────
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file: .env
-    volumes:
-      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -72,68 +73,17 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-  # ── Celery Worker (OCR + Extração) ───────────────────────────────────────
-  celery_worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: .env
-    volumes:
-      - ./backend:/app
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
     command: >
-      celery -A app.tasks.celery_app worker
-      --loglevel=info
-      --concurrency=2
-      --queues=ocr,extraction,embeddings,default
-    environment:
-      C_FORCE_ROOT: "true"
-
-  # ── Celery Beat (agendamento) ────────────────────────────────────────────
-  celery_beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: .env
-    volumes:
-      - ./backend:/app
-    depends_on:
-      - redis
-    command: celery -A app.tasks.celery_app beat --loglevel=info
-
-  # ── Flower (monitoramento Celery) ────────────────────────────────────────
-  flower:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file: .env
-    ports:
-      - "5555:5555"
-    depends_on:
-      - redis
-    command: celery -A app.tasks.celery_app flower --port=5555
-
-  # ── Frontend React ───────────────────────────────────────────────────────
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      VITE_API_URL: http://localhost:8000
+      sh -c "
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
 
 volumes:
   postgres_data:
