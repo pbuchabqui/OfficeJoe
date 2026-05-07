@@ -1,0 +1,201 @@
+{
+  "contexto_caso": {
+    "titulo": "Rescisão Sem Justa Causa com Diferenças Salariais",
+    "tipo_processo": "trabalhista",
+    "descricao": "Reclamante alega que foi demitido sem justa causa e que sofreu diferenças salariais durante período de emprego. Empresa alega que houve redução de atividades que justificava ajustes salariais.",
+    "documentos_fornecidos": [
+      "Contrato de Trabalho Original",
+      "TRCT (Termo de Rescisão do Contrato de Trabalho)",
+      "Recibo de 3 últimas folhas de pagamento",
+      "Aviso prévio documentado",
+      "E-mails de comunicação interna da empresa"
+    ],
+    "periodo_analise": {
+      "data_inicio": "2020-01-15",
+      "data_fim": "2023-03-30",
+      "tempo_servico_meses": 38
+    },
+    "questoes_principais": [
+      "Validade da demissão sem justa causa",
+      "Comprovação de diferenças salariais",
+      "Aplicabilidade de dissídios coletivos",
+      "Cálculo de indenizações"
+    ]
+  },
+  "sugestoes": {
+    "caso_id": "CASE-2024-001",
+    "tipo_processo": "trabalhista",
+    "data_analise": "2024-05-07T14:30:00Z",
+    "sugestoes": [
+      {
+        "id": 1,
+        "documento_tipo": "Contracheques Completos (Período Total de Emprego)",
+        "descricao": "Série completa de contracheques desde o início do contrato até a data da rescisão para análise de padrão salarial, deduções, adicionais e composição de remuneração ao longo de todo período.",
+        "prioridade": "crítica",
+        "caso_uso": "Análise técnica de diferenças salariais, identificação de períodos com redução ou aumento de remuneração, comprovação de impactos de dissídios coletivos e políticas internas da empresa, cálculo de médias salariais para fins de indenização.",
+        "criterios_aceitacao": [
+          "Contracheques originais ou autenticados",
+          "Período: 01/2020 a 03/2023 (data da rescisão)",
+          "Deve incluir discriminação detalhada de rubricas",
+          "Data de emissão e assinatura da empresa"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem acesso aos contracheques completos, é impossível realizar análise técnica de diferenças salariais, caracterizar períodos de redução remuneratória injustificada e comprovar alegações de perdas salariais.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Conclusões sobre diferenças salariais ficariam sem fundamento técnico-documental, comprometendo integralmente o laudo.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Holerite síntese mensal fornecido pela empresa",
+            "Cópia digital autenticada com chave digital da empresa",
+            "Sistema de gestão de RH impresso com certificação"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2020-01-15",
+          "data_fim": "2023-03-30",
+          "descricao_periodo": "Período completo de emprego do reclamante"
+        }
+      },
+      {
+        "id": 2,
+        "documento_tipo": "Acordos Coletivos e Dissídios Aplicáveis (2020-2023)",
+        "descricao": "Cópias de acordos coletivos de trabalho ou sentença normativa de dissídios que incidiram sobre a categoria profissional durante o período de emprego, para validar se aumentos/reduções salariais foram em conformidade com negociação coletiva.",
+        "prioridade": "alta",
+        "caso_uso": "Análise de aplicabilidade de dissídios salariais, validação de reajustes efetuados pela empresa, identificação de períodos de dissídios não aplicados corretamente, comprovação de alegações de diferenças salariais.",
+        "criterios_aceitacao": [
+          "Documentos originais ou cópias autenticadas",
+          "Deve cobrir período 2020-2023 completo",
+          "Deve especificar percentual de reajuste e data de aplicação",
+          "Identificar a categoria profissional do reclamante"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem dissídios aplicáveis, não é possível determinar se as alterações salariais alegadas violaram direitos trabalhistas ou normas coletivas.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta conclusão sobre existência e magnitude de diferenças salariais ilícitas.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Documentação sindical original",
+            "Publicação em Diário Oficial do Estado",
+            "Relatório de dissídios fornecido pela empresa"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2020-01-01",
+          "data_fim": "2023-03-30",
+          "descricao_periodo": "Período de vigência dos acordos aplicáveis"
+        }
+      },
+      {
+        "id": 3,
+        "documento_tipo": "Regulamento Interno ou Políticas de Remuneração da Empresa",
+        "descricao": "Documento que establece as regras internas da empresa para ajustes salariais, bônus, comissões, reduções de jornada ou outros impactos remuneratórios, para contextualizar decisões de alteração salarial.",
+        "prioridade": "alta",
+        "caso_uso": "Validação de procedimentos adotados pela empresa para alteração de remuneração, identificação de desvios de política interna, análise de justificativas para redução salarial alegada.",
+        "criterios_aceitacao": [
+          "Versão vigente durante o período de emprego",
+          "Assinado ou aprovado pela empresa",
+          "Deve incluir disposições sobre remuneração",
+          "Data de implementação e vigência"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem regulamento, não é possível verificar se a empresa seguiu seus próprios procedimentos ou se agiu discricionariamente.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta análise de legalidade procedural das decisões de alteração salarial.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Testemunho escrito de outros funcionários",
+            "E-mails de comunicação interna sobre política",
+            "Registros de outras demissões com critérios similares"
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "documento_tipo": "Documentação sobre Redução de Atividades ou Reestruturação (se alegada)",
+        "descricao": "Se a empresa alega que houve redução de atividades justificando ajustes salariais, deve fornecer documentação que comprove: relatórios de receita, volume de operações, clientes perdidos, projetos encerrados.",
+        "prioridade": "alta",
+        "caso_uso": "Validar se alegada redução de atividades realmente ocorreu, quantificar impacto econômico, comparar com redução salarial proporcionalmente aplicada, identificar se redução foi geral ou seletiva.",
+        "criterios_aceitacao": [
+          "Relatórios financeiros ou operacionais contemporâneos",
+          "Dados de período anterior e posterior à alegada redução",
+          "Assinado ou certificado por responsável empresarial",
+          "Correlação clara entre redução de atividade e redução salarial"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem comprovação de redução de atividades, a defesa da empresa fica sem fundamento técnico.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Crucial para determinar se havia causa econômica justificada para alterações salariais.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        },
+        "periodo_temporal": {
+          "data_inicio": "2019-12-01",
+          "data_fim": "2023-04-30",
+          "descricao_periodo": "Período 12 meses anterior e posterior à alegada redução"
+        }
+      },
+      {
+        "id": 5,
+        "documento_tipo": "Carteira de Trabalho (CTPS) Autenticada ou Cópia Certificada",
+        "descricao": "Documento oficial de identificação do vínculo empregatício com anotações de data de admissão, cargo, salário inicial registrado, para validar informações do contrato e confirmar historicidade do emprego.",
+        "prioridade": "media",
+        "caso_uso": "Confirmação de data de admissão, cargo registrado, validação cruzada com informações do contrato, identificação de divergências entre CTPS e contrato.",
+        "criterios_aceitacao": [
+          "Documento oficial ou cópia autenticada",
+          "Anotações legíveis do período de emprego",
+          "Assinatura do representante legal da empresa"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Documento complementar que auxilia validação de informações básicas.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Impacto baixo se outras informações estão validadas, mas importante para integridade documental.",
+          "risco_conclusao": "risco_baixo"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Dados da CTPS fornecidos pela empresa",
+            "Confirmação do sindicato da categoria",
+            "Registros internos da empresa"
+          ]
+        }
+      }
+    ],
+    "resumo_executivo": {
+      "total_sugestoes": 5,
+      "sugestoes_criticas": 1,
+      "sugestoes_altas": 3,
+      "analise_lacunas": "O caso apresenta lacuna crítica na documentação de remuneração. Os contracheques completos são absolutamente indispensáveis para análise técnica de diferenças salariais. Adicionalmente, faltam acordos coletivos, regulamento interno da empresa e documentação sobre a redução de atividades alegada. Essas lacunas impedem análise técnica robusta sobre a veracidade de diferenças salariais e validade econômica de ajustes remuneratórios.",
+      "recomendacoes_gerais": [
+        "Solicitar imediatamente série completa de contracheques (crítico)",
+        "Obter cópias de todos os acordos coletivos vigentes no período",
+        "Requerer regulamento interno da empresa sobre políticas salariais",
+        "Solicitar documentação que comprove ou refute a alegada redução de atividades",
+        "Validar informações da CTPS para confirmação de data de admissão"
+      ],
+      "observacoes": "Caso típico de ação trabalhista de diferenças salariais. A ausência de contracheques é o impeditivo fundamental. Recomenda-se requerer esses documentos via processo de descoberta (discovery) ou determinar presunção de verdade se recusados pela empresa."
+    }
+  }
+}

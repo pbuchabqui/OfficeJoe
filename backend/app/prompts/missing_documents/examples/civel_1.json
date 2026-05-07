@@ -1,0 +1,220 @@
+{
+  "contexto_caso": {
+    "titulo": "Inadimplência de Contrato de Serviços Profissionais",
+    "tipo_processo": "civel",
+    "descricao": "Prestador de serviços profissionais (consultoria empresarial) forneceu diferentes fases de um projeto para empresa cliente. Cliente alega que serviços não foram completamente entregues e de qualidade inferior ao contratado. Prestador cobra os valores das fases alegando cumprimento contratual e argumenta que cliente não aceitou entregas por mudança de decisão estratégica.",
+    "documentos_fornecidos": [
+      "Contrato de Prestação de Serviços (versão assinada)",
+      "3 recibos de pagamento parcial",
+      "2 e-mails trocados entre partes no final do projeto",
+      "Cópia de 2 relatórios entregues (fases 1 e 2)",
+      "Cronograma do projeto inicial"
+    ],
+    "periodo_analise": {
+      "data_inicio": "2022-03-01",
+      "data_fim": "2023-09-30",
+      "valor_contrato_total": "250000.00"
+    },
+    "questoes_principais": [
+      "Análise de cumprimento das obrigações contratuais",
+      "Avaliação da qualidade dos serviços entregues vs. contratados",
+      "Quantificação de perdas econômicas por não-cumprimento",
+      "Responsabilidade por alterações de escopo",
+      "Determinação de valor devido ou reembolso"
+    ]
+  },
+  "sugestoes": {
+    "caso_id": "CASE-2024-003",
+    "tipo_processo": "civel",
+    "data_analise": "2024-05-07T14:30:00Z",
+    "sugestoes": [
+      {
+        "id": 1,
+        "documento_tipo": "Documentação Completa de Entrega do Projeto (Todos os Relatórios, Deliverables e Artefatos)",
+        "descricao": "Cópias completas de todos os documentos, planilhas, relatórios, apresentações e artefatos produzidos pelo prestador em cada fase do projeto, incluindo versões anteriores, aditamentos e comentários do cliente.",
+        "prioridade": "crítica",
+        "caso_uso": "Análise detalhada de escopo de trabalho efetivamente entregue, comparação com especificações contratuais, avaliação de qualidade técnica dos deliverables, identificação de lacunas na entrega.",
+        "criterios_aceitacao": [
+          "Documentação completa de todas as fases/etapas",
+          "Com datas de entrega comprovadas",
+          "Assinadas ou recebidas formalmente pelo cliente",
+          "Incluindo versões finais de cada artefato",
+          "Evidência de aceitação ou rejeição formal"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem documentação dos deliverables, impossível analisar se foram realmente entregues e qual sua qualidade técnica.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Conclusões sobre cumprimento contratual ficam sem fundamento técnico-documental.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        },
+        "periodo_temporal": {
+          "data_inicio": "2022-03-01",
+          "data_fim": "2023-09-30",
+          "descricao_periodo": "Período completo do contrato"
+        }
+      },
+      {
+        "id": 2,
+        "documento_tipo": "Especificações Técnicas ou Statement of Work (SOW) Detalhado",
+        "descricao": "Documento que detalha tecnicamente o que deveria ser entregue em cada fase, incluindo critérios de aceitação, padrões de qualidade esperados, metodologias a serem utilizadas, e métricas de sucesso.",
+        "prioridade": "crítica",
+        "caso_uso": "Estabelecer baseline do que foi contratado, comparar com efetivamente entregue, avaliar conformidade técnica, identificar desvios de especificação.",
+        "criterios_aceitacao": [
+          "Documento formal, assinado pelas partes",
+          "Detalhamento de cada fase/etapa do projeto",
+          "Critérios de aceitação técnicos específicos",
+          "Referência a padrões ou metodologias",
+          "Data de assinatura anterior ao início da execução"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem SOW detalhado, não há baseline técnico para comparação com o que foi entregue.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta conclusão fundamental sobre conformidade técnica contratual.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        }
+      },
+      {
+        "id": 3,
+        "documento_tipo": "Registros de Comunicação Completos (E-mails, Mensagens, Atas de Reunião)",
+        "descricao": "Série completa de e-mails, mensagens e atas de reuniões trocadas entre prestador e cliente durante execução do projeto, para reconstruir cronologia de eventos, decisões, mudanças e aceitações/rejeições de trabalho.",
+        "prioridade": "alta",
+        "caso_uso": "Identificar cronologia de eventos críticos, comprovar aceitação/rejeição de entrega, documentar mudanças de escopo, validar evidência de problemas identificados e comunicados.",
+        "criterios_aceitacao": [
+          "E-mails originais com headers de data/hora",
+          "Atas de reunião formal ou informal com datas",
+          "Mensagens (WhatsApp, Teams, Slack) com timestamps",
+          "Período completo de execução do projeto",
+          "Incluindo correspondência de ambas as partes"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Comunicação contemporânea aos eventos é fundamental para contextualizar decisões e mudanças.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta análise de responsabilidade por desvios de escopo e qualidade.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Depoimento de testemunhas presentes em reuniões",
+            "Atas formalizadas em momento anterior",
+            "Confirmação por terceiro (cliente intermediário ou supervisor)"
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "documento_tipo": "Aditamentos ou Modificações ao Contrato Original",
+        "descricao": "Documentação de qualquer alteração ao escopo, prazo, valor ou condições do contrato original, assinada pelas partes, para validar se havia aprovação de mudanças ou se foram executadas unilateralmente.",
+        "prioridade": "alta",
+        "caso_uso": "Determinação de responsabilidade por alterações de escopo, validação de mudanças de valor cobrado, análise de conformidade com cronograma modificado.",
+        "criterios_aceitacao": [
+          "Documentos de aditamento formalmente assinados",
+          "Com data de alteração e data de assinatura",
+          "Descreve especificamente o que foi adicionado/removido/alterado",
+          "Impacto financeiro ou de prazo claramente documentado"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Aditamentos formais comprovam consensualidade de mudanças vs. unilateralidade.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Determina se prestador agiu dentro de autorização para mudanças.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "E-mails de aprovação de mudanças",
+            "Atas de reunião formalizando alteração",
+            "Comprovação de pagamento de valor adicional"
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "documento_tipo": "Documentação de Testes, Validação e Aceitação Formal",
+        "descricao": "Documentos formalizando testes de conformidade, validação de requisitos, e aceitação ou rejeição formal de cada entrega, assinados pelas partes.",
+        "prioridade": "alta",
+        "caso_uso": "Prova de aceitação ou rejeição formal de cada phase, identificação do momento exato em que problemas foram levantados, quantificação de trabalho realmente aceito.",
+        "criterios_aceitacao": [
+          "Checklist de validação assinado",
+          "Relatório de testes (mesmo que informal)",
+          "Ata de aceite ou rejeição formal",
+          "Data e assinatura de autorizado pelo cliente",
+          "Descrição específica do aceito/rejeitado"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Aceitação formal é prova contratual de cumprimento; rejeição é prova de não-conformidade.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Altamente relevante para determinação de responsabilidade.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        }
+      },
+      {
+        "id": 6,
+        "documento_tipo": "Registros de Tempo e Recursos Utilizados pelo Prestador",
+        "descricao": "Documentação de horas trabalhadas, profissionais envolvidos, recursos consumidos, para validar se esforço empregado foi condizente com contrato ou se houve sub-utilização de recursos.",
+        "prioridade": "media",
+        "caso_uso": "Análise de adequação de esforço empregado vs. contratado, validação de custos indiretos incorridos, comprovação de dedicação profissional.",
+        "criterios_aceitacao": [
+          "Timesheets ou registros de horas trabalhadas",
+          "Com nomes de profissionais e datas",
+          "Descrição de atividades realizadas",
+          "Totalizações de horas por período/fase",
+          "Assinado ou certificado por supervisor"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Registro de tempo complementa análise de esforço empregado.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta análise de adequação de recursos e custos.",
+          "risco_conclusao": "risco_baixo"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Documentação de custos da empresa prestadora",
+            "Confirmação por testemunhas sobre dedicação profissional",
+            "Análise de volume de output vs. tempo disponível"
+          ]
+        }
+      }
+    ],
+    "resumo_executivo": {
+      "total_sugestoes": 6,
+      "sugestoes_criticas": 2,
+      "sugestoes_altas": 3,
+      "analise_lacunas": "O caso apresenta lacunas críticas em documentação essencial para análise de cumprimento contratual. Faltam documentação completa de todos os deliverables entregues (imprescindível), especificações técnicas detalhadas do que deveria ser entregue (absolutamente necessário para comparação), registros formais de aceitação/rejeição, e documentação de comunicação entre partes. Essas lacunas impossibilitam análise técnica robusta sobre conformidade de escopo e qualidade entregues.",
+      "recomendacoes_gerais": [
+        "Requisitar imediatamente cópia de TODOS os relatórios e artefatos entregues (crítico)",
+        "Obter SOW (Statement of Work) ou especificações técnicas detalhadas do que foi contratado",
+        "Solicitar série completa de e-mails e comunicações do período de execução",
+        "Requerer documentação de aceitação ou rejeição formal de cada entrega",
+        "Obter registros de tempo/esforço empregado pelo prestador",
+        "Se houver aditamentos, incluí-los na análise comparativa"
+      ],
+      "observacoes": "Caso típico de disputa contratual por qualidade/escopo de serviços. Recomenda-se análise técnica paralela verificando se artefatos entregues estão em conformidade com especificações. Se SOW não existir formalmente, pode fortalecer posição de uma das partes (indefinição beneficia prestador; cliente teria ônus de provar menor qualidade)."
+    }
+  }
+}

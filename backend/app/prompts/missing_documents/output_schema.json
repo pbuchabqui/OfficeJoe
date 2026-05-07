@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema de Saída: Sugestões de Documentos Faltantes",
+  "description": "Schema para retorno estruturado de sugestões de documentos faltantes em análise forense contábil",
+  "type": "object",
+  "required": [
+    "caso_id",
+    "tipo_processo",
+    "data_analise",
+    "sugestoes",
+    "resumo_executivo"
+  ],
+  "properties": {
+    "caso_id": {
+      "type": "string",
+      "description": "Identificador único do caso jurídico"
+    },
+    "tipo_processo": {
+      "type": "string",
+      "enum": ["trabalhista", "civel", "fiscal", "administrativo", "arbitragem"],
+      "description": "Tipo do processo jurídico"
+    },
+    "data_analise": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora da análise (ISO 8601)"
+    },
+    "sugestoes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "description": "Lista de documentos sugeridos",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "documento_tipo",
+          "descricao",
+          "prioridade",
+          "caso_uso",
+          "criterios_aceitacao",
+          "impacto_tecnico",
+          "impacto_conclusivo",
+          "reversibilidade"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Identificador sequencial da sugestão (1, 2, 3, ...)"
+          },
+          "documento_tipo": {
+            "type": "string",
+            "description": "Tipo específico do documento (ex: 'Folha de Pagamento - Período Específico', 'Contrato de Trabalho Original')",
+            "minLength": 5,
+            "maxLength": 150
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descrição clara de por que este documento é necessário para a análise",
+            "minLength": 20,
+            "maxLength": 500
+          },
+          "prioridade": {
+            "type": "string",
+            "enum": ["crítica", "alta", "média", "baixa"],
+            "description": "Nível de prioridade para obtenção do documento"
+          },
+          "caso_uso": {
+            "type": "string",
+            "description": "Descrição específica de como este documento será utilizado na análise técnica",
+            "minLength": 20,
+            "maxLength": 300
+          },
+          "criterios_aceitacao": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "description": "Critérios que tornam o documento aceitável para análise",
+            "items": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 200
+            }
+          },
+          "impacto_tecnico": {
+            "type": "object",
+            "required": ["descricao", "nivel"],
+            "description": "Impacto técnico da ausência deste documento",
+            "properties": {
+              "descricao": {
+                "type": "string",
+                "description": "Como a ausência afeta a análise técnica",
+                "minLength": 20,
+                "maxLength": 300
+              },
+              "nivel": {
+                "type": "string",
+                "enum": ["critico", "alto", "medio", "baixo"],
+                "description": "Nível de impacto técnico"
+              }
+            }
+          },
+          "impacto_conclusivo": {
+            "type": "object",
+            "required": ["descricao", "risco_conclusao"],
+            "description": "Impacto nas conclusões do laudo",
+            "properties": {
+              "descricao": {
+                "type": "string",
+                "description": "Como a ausência afeta as conclusões",
+                "minLength": 20,
+                "maxLength": 300
+              },
+              "risco_conclusao": {
+                "type": "string",
+                "enum": ["alto_risco", "risco_moderado", "risco_baixo"],
+                "description": "Risco de conclusões incorretas sem este documento"
+              }
+            }
+          },
+          "reversibilidade": {
+            "type": "object",
+            "required": ["eh_reversivel", "alternativas"],
+            "description": "Se pode ser substituído por outro documento similar",
+            "properties": {
+              "eh_reversivel": {
+                "type": "boolean",
+                "description": "Pode ser substituído por documento alternativo"
+              },
+              "alternativas": {
+                "type": "array",
+                "description": "Lista de documentos alternativos (se eh_reversivel = true)",
+                "items": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 150
+                }
+              }
+            }
+          },
+          "periodo_temporal": {
+            "type": "object",
+            "description": "Período específico do documento se aplicável",
+            "properties": {
+              "data_inicio": {
+                "type": "string",
+                "format": "date",
+                "description": "Data de início (YYYY-MM-DD)"
+              },
+              "data_fim": {
+                "type": "string",
+                "format": "date",
+                "description": "Data de fim (YYYY-MM-DD)"
+              },
+              "descricao_periodo": {
+                "type": "string",
+                "description": "Descrição textual do período (ex: 'últimos 36 meses antes da rescisão')"
+              }
+            }
+          }
+        }
+      }
+    },
+    "resumo_executivo": {
+      "type": "object",
+      "required": [
+        "total_sugestoes",
+        "sugestoes_criticas",
+        "sugestoes_altas",
+        "analise_lacunas",
+        "recomendacoes_gerais"
+      ],
+      "description": "Resumo executivo das sugestões",
+      "properties": {
+        "total_sugestoes": {
+          "type": "integer",
+          "description": "Número total de documentos sugeridos"
+        },
+        "sugestoes_criticas": {
+          "type": "integer",
+          "description": "Quantidade de sugestões com prioridade crítica"
+        },
+        "sugestoes_altas": {
+          "type": "integer",
+          "description": "Quantidade de sugestões com prioridade alta"
+        },
+        "analise_lacunas": {
+          "type": "string",
+          "description": "Análise geral das lacunas documentais identificadas",
+          "minLength": 50,
+          "maxLength": 1000
+        },
+        "recomendacoes_gerais": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Recomendações gerais para completude documental",
+          "items": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 300
+          }
+        },
+        "observacoes": {
+          "type": "string",
+          "description": "Observações adicionais relevantes",
+          "maxLength": 500
+        }
+      }
+    }
+  }
+}

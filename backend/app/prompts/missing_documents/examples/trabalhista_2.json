@@ -1,0 +1,235 @@
+{
+  "contexto_caso": {
+    "titulo": "Acidente de Trabalho com Incapacidade Temporária e Sequelas",
+    "tipo_processo": "trabalhista",
+    "descricao": "Reclamante sofreu acidente de trabalho que resultou em incapacidade temporária de 90 dias e sequelas permanentes. Questiona se INSS pagou benefícios adequados, se empresa cumpriu obrigações de segurança e reabilitação, e se há direito a indenização por danos morais e estéticos.",
+    "documentos_fornecidos": [
+      "Boletim de Ocorrência (BO) do acidente",
+      "Comunicação de Acidente de Trabalho (CAT) apresentada ao INSS",
+      "Três atestados médicos iniciais",
+      "Alta Médica do INSS",
+      "E-mail de comunicação da empresa sobre afastamento"
+    ],
+    "periodo_analise": {
+      "data_inicio": "2022-06-15",
+      "data_fim": "2024-05-15",
+      "tempo_desde_acidente_meses": 23
+    },
+    "questoes_principais": [
+      "Investigação técnica das causas do acidente",
+      "Adequação de benefícios pagos pelo INSS",
+      "Conformidade com normas de segurança do trabalho (NR-5, NR-6, NR-12)",
+      "Extensão das sequelas físicas e psicológicas",
+      "Adequação do processo de reabilitação profissional"
+    ]
+  },
+  "sugestoes": {
+    "caso_id": "CASE-2024-002",
+    "tipo_processo": "trabalhista",
+    "data_analise": "2024-05-07T14:30:00Z",
+    "sugestoes": [
+      {
+        "id": 1,
+        "documento_tipo": "Processo de Investigação Interna da Empresa sobre o Acidente",
+        "descricao": "Relatório técnico elaborado pela empresa ou terceirizados descrevendo investigação das causas raiz do acidente, análise de falhas de segurança, condições da máquina/equipamento envolvido, qualificação do trabalhador.",
+        "prioridade": "crítica",
+        "caso_uso": "Análise forense das condições técnicas que levaram ao acidente, identificação de falhas de engenharia ou procedimento, comprovação ou refutação de negligência empresa, validação de relato do reclamante.",
+        "criterios_aceitacao": [
+          "Investigação contemporânea ao acidente (dias/semanas após)",
+          "Realizada por profissional qualificado (engenheiro segurança, técnico)",
+          "Deve incluir fotografias do local/máquina",
+          "Análise de causa raiz com recomendações",
+          "Assinado e datado"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem investigação técnica, impossível determinar se acidente resultou de risco inerente à atividade ou negligência da empresa na segurança.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta conclusão fundamental sobre responsabilidade da empresa e adequação das medidas de segurança adotadas.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        },
+        "periodo_temporal": {
+          "data_inicio": "2022-06-15",
+          "data_fim": "2022-07-15",
+          "descricao_periodo": "Período imediatamente após o acidente"
+        }
+      },
+      {
+        "id": 2,
+        "documento_tipo": "Laudos e Relatórios Médicos Completos (Período Completo de Afastamento e Reabilitação)",
+        "descricao": "Série completa de avaliações, consultas, exames (radiografias, ressonâncias, testes funcionais) realizados durante afastamento e reabilitação, incluindo prognósticos de recuperação e definição de sequelas permanentes.",
+        "prioridade": "crítica",
+        "caso_uso": "Quantificação da incapacidade temporária, identificação e comprovação de sequelas permanentes, análise de adequação do tempo de afastamento, validação de necessidade de readaptação funcional.",
+        "criterios_aceitacao": [
+          "Documentos médicos originais com carimbo e assinatura",
+          "Período: data do acidente até alta final ou estabilização sequelas",
+          "Exames de imagem com laudos",
+          "Parecer de especialista (ortopedista, neurocirugia conforme tipo lesão)",
+          "Documentação de reabilitação profissional se realizada"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Sem laudos médicos completos, não é possível quantificar incapacidade ou comprovar sequelas alegadas.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Conclusões sobre dano físico e psicológico ficam sem fundamento médico-técnico.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Documentação do INSS sobre benefício auxílio-doença",
+            "Prontuário médico impresso pela clínica",
+            "Parecer complementar de perito independente"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2022-06-15",
+          "data_fim": "2022-09-15",
+          "descricao_periodo": "Período completo de incapacidade temporária mais 30 dias de acompanhamento pós-alta"
+        }
+      },
+      {
+        "id": 3,
+        "documento_tipo": "Documentação de Segurança da Empresa (Programas, Laudos Períodicos, Inspeções)",
+        "descricao": "Documentação comprobatória de programas de segurança em vigência (PPRA, PCMSO), laudos periódicos de máquinas/equipamentos, registro de inspeções de segurança realizadas nos 6 meses anteriores ao acidente.",
+        "prioridade": "alta",
+        "caso_uso": "Comprovação de conformidade ou desconformidade com normas de segurança do trabalho, identificação de falhas em implementação de programas, validação de manutenção preventiva de máquinas envolvidas.",
+        "criterios_aceitacao": [
+          "PPRA (Programa de Prevenção de Riscos Ambientais) atualizado",
+          "PCMSO (Programa de Controle Médico de Saúde Ocupacional) vigente",
+          "Laudos de máquinas com data de vencimento futura à data acidente",
+          "Registro de inspeções internas realizadas",
+          "Assinado por responsáveis"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Documentação de segurança contextualiza risco esperado vs. risco evitável, ajudando determinar nível de negligência.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Influencia conclusão sobre conformidade legal e negligência da empresa.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Certificação de conformidade (ISO 45001 se aplicável)",
+            "Relatório de auditor de segurança independente",
+            "Comunicação do sindicato sobre inspeções CIPA"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2022-01-15",
+          "data_fim": "2022-06-15",
+          "descricao_periodo": "6 meses anteriores ao acidente"
+        }
+      },
+      {
+        "id": 4,
+        "documento_tipo": "Histórico de Registros de Acidentes Anteriores na Mesma Máquina/Setor",
+        "descricao": "Registro de acidentes anteriores envolvendo mesma máquina, setor ou tipo de lesão similar, para identificar padrão de risco negligenciado pela empresa.",
+        "prioridade": "alta",
+        "caso_uso": "Análise de reincidência de acidentes, comprovação de negligência continuada, identificação de risco conhecido e não mitigado pela empresa.",
+        "criterios_aceitacao": [
+          "Registros de CAT anteriores do setor",
+          "Documentação interna de acidentes/quase-acidentes",
+          "Comunicações entre CIPA e gestão sobre riscos",
+          "Datas e descrições de acidentes similares"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Presença de acidentes anteriores similares demonstra negligência continuada, fortalecendo análise de responsabilidade.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Aumenta magnitude de culpa da empresa se acidentes similares já haviam ocorrido.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Depoimentos de colegas de trabalho sobre riscos",
+            "Registros sindicais de reclamações",
+            "Comunicações da CIPA que possam estar em poder da empresa"
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "documento_tipo": "Documentação de Benefícios Pagos pelo INSS (Auxílio-Doença, Reabilitação)",
+        "descricao": "Cópia de protocolos do INSS mostrando períodos de pagamento de auxílio-doença, acidente, decisão sobre permanência em benefício ou alta, participação em programa de reabilitação profissional.",
+        "prioridade": "media",
+        "caso_uso": "Validação de adequação de benefícios, confirmação de período de incapacidade formal, identificação de gaps entre afastamento real e reconhecimento oficial.",
+        "criterios_aceitacao": [
+          "Documento oficial do INSS",
+          "Mostrando períodos de benefício",
+          "Descrição de diagnóstico reconhecido",
+          "Data da alta ou continuidade do benefício"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Documento complementar que valida informações sobre período de incapacidade.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Ajuda contextualizar período de afastamento mas não é determinante se há documentação médica.",
+          "risco_conclusao": "risco_baixo"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Depoimento do reclamante sobre períodos de benefício",
+            "Comprovante bancário de recebimento de benefício",
+            "Documentação do sindicato"
+          ]
+        }
+      },
+      {
+        "id": 6,
+        "documento_tipo": "Análise de Aptidão Funcional Pós-Acidente (Parecer de Reabilitação)",
+        "descricao": "Parecer técnico ou médico descrevendo se o reclamante pode retornar à função anterior, se necessita readaptação funcional, ou se há incapacidade permanente para o trabalho.",
+        "prioridade": "media",
+        "caso_uso": "Comprovação de sequelas permanentes que geram direito a indenização, validação de necessidade de readaptação ou reabilitação profissional.",
+        "criterios_aceitacao": [
+          "Parecer de médico responsável pelo afastamento",
+          "Análise funcional com testes específicos",
+          "Recomendações de readaptação ou mudança de função",
+          "Data da avaliação pós-estabilização"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Documento que complementa análise de sequelas e define aptidão funcional.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Importante para determinar se há sequela permanente justificando indenização.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Parecer de perícia do tribunal",
+            "Avaliação de reabilitação do INSS",
+            "Teste funcional realizado por outro profissional qualificado"
+          ]
+        }
+      }
+    ],
+    "resumo_executivo": {
+      "total_sugestoes": 6,
+      "sugestoes_criticas": 2,
+      "sugestoes_altas": 2,
+      "analise_lacunas": "O caso apresenta lacunas críticas em documentação técnica e médica necessária para análise completa de acidente ocupacional. Faltam investigação técnica interna da empresa (absolutamente necessária), série completa de laudos médicos (imprescindível para quantificação de incapacidade e sequelas), e documentação de segurança que contextualize conformidade normativa. Essas lacunas impedem análise forense adequada sobre responsabilidade da empresa e causalidade entre acidente e sequelas.",
+      "recomendacoes_gerais": [
+        "Requisitar imediatamente investigação técnica da empresa sobre causa-raiz do acidente (crítico)",
+        "Obter série completa de laudos, exames e pareceres médicos do período de afastamento",
+        "Solicitar documentação de conformidade com normas NR-5, NR-6, NR-12 conforme equipamento envolvido",
+        "Verificar histórico de acidentes anteriores na mesma máquina/setor",
+        "Obter parecer de aptidão funcional pós-acidente e recomendações de readaptação"
+      ],
+      "observacoes": "Acidente de trabalho é tema complexo envolvendo análise técnica de segurança, análise médica de lesões e sequelas, e análise legal de responsabilidade. Recomenda-se envolvimento de engenheiro de segurança do trabalho conjuntamente com análise pericial contábil para quantificação de danos."
+    }
+  }
+}
