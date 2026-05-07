@@ -5,7 +5,9 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models.case import Case
+from app.db.models.diligence_item import DiligenceItem
 from app.db.models.technical_limitation import TechnicalLimitation
+from app.db.models.audit_log import AuditLog
 from app.schemas.technical_limitation import (
     TechnicalLimitationCreateRequest,
     TechnicalLimitationUpdateRequest,
@@ -182,3 +184,76 @@ async def list_technical_limitations_by_case(
     )
 
     return limitations.all(), total or 0
+
+
+async def create_limitation_from_diligence_item(
+    db: AsyncSession,
+    diligence_item_id: str,
+    user_id: str,
+) -> TechnicalLimitation:
+    """Create a technical limitation from an unmet diligence item.
+
+    Generates a technical limitation when a diligence item is marked as
+    not received, creating a record of the limitation.
+
+    Validates:
+    - Diligence item exists
+    - Diligence item status is "não_recebido"
+    - Related diligence exists
+    - Records audit log entry
+    """
+    item = await db.get(DiligenceItem, diligence_item_id)
+    if not item:
+        raise ValueError(f"Diligence item {diligence_item_id} not found")
+
+    if item.status_recebimento != "não_recebido":
+        raise ValueError(
+            f"Cannot create limitation: item status is {item.status_recebimento}, "
+            "expected 'não_recebido'"
+        )
+
+    from app.db.models.diligence import Diligence
+
+    diligence = await db.get(Diligence, item.diligence_id)
+    if not diligence:
+        raise ValueError(f"Diligence {item.diligence_id} not found")
+
+    case = diligence.case
+    if not case:
+        raise ValueError(f"Case for diligence {item.diligence_id} not found")
+
+    description = f"Documento não recebido: {item.requested_document}"
+    technical_impact = (
+        item.observacao_pendencia
+        if item.observacao_pendencia
+        else "Não foi possível obter o documento solicitado, impedindo análise técnica completa"
+    )
+
+    limitation = TechnicalLimitation(
+        case_id=case.id,
+        type="diligência_não_atendida",
+        description=description,
+        technical_impact=technical_impact,
+        criticality="alta",
+        status="draft",
+        diligence_id=item.diligence_id,
+    )
+
+    db.add(limitation)
+    await db.flush()
+
+    audit_log = AuditLog(
+        resource_type="TechnicalLimitation",
+        resource_id=limitation.id,
+        action="created_from_unmet_diligence",
+        details={
+            "diligence_item_id": diligence_item_id,
+            "requested_document": item.requested_document,
+            "diligence_id": item.diligence_id,
+        },
+        user_id=user_id,
+    )
+    db.add(audit_log)
+
+    await db.flush()
+    return limitation

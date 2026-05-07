@@ -18,6 +18,7 @@ from app.services.technical_limitation_service import (
     update_technical_limitation,
     delete_technical_limitation,
     list_technical_limitations_by_case,
+    create_limitation_from_diligence_item,
 )
 
 router = APIRouter(prefix="/technical-limitations", tags=["Limitações Técnicas"])
@@ -146,3 +147,33 @@ async def list_limitations_endpoint(
         offset=offset,
         items=limitations,
     )
+
+
+@router.post(
+    "/from-diligence/{diligence_item_id}",
+    response_model=TechnicalLimitationResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Criar limitação de diligência não atendida",
+)
+async def create_limitation_from_diligence_endpoint(
+    diligence_item_id: str = Path(..., description="ID do item de diligência"),
+    current_user=Depends(require_permission("technical_limitation:write")),
+    db: AsyncSession = Depends(get_db),
+) -> TechnicalLimitationResponse:
+    """
+    Cria uma limitação técnica a partir de um item de diligência não atendido.
+
+    Valida:
+    - Item de diligência existe
+    - Status do item é "não_recebido"
+    - Registra entrada em log de auditoria
+    """
+    try:
+        limitation = await create_limitation_from_diligence_item(
+            db, diligence_item_id, current_user.id
+        )
+        await db.commit()
+        await db.refresh(limitation)
+        return limitation
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
