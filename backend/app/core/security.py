@@ -32,6 +32,7 @@ ROLE_PERMISSIONS: Dict[Role, List[str]] = {
         "ocr:run", "extraction:read", "extraction:write",
         "quesito:read", "quesito:write",
         "ai:query", "ai:review",
+        "evidence:read", "evidence:write",
         "audit:read",
     ],
     Role.ASSISTENTE: [
@@ -39,6 +40,7 @@ ROLE_PERMISSIONS: Dict[Role, List[str]] = {
         "document:read", "document:write",
         "ocr:run", "extraction:read",
         "quesito:read",
+        "evidence:read",
         "ai:query",
     ],
     Role.VISUALIZADOR: [
@@ -46,6 +48,7 @@ ROLE_PERMISSIONS: Dict[Role, List[str]] = {
         "document:read",
         "extraction:read",
         "quesito:read",
+        "evidence:read",
     ],
 }
 

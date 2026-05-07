@@ -194,3 +194,20 @@ export interface SemanticSearchResult {
 export interface ApiError {
   detail: string | { msg: string; type: string }[]
 }
+
+// ── PDF Viewer ────────────────────────────────────────────────────────────────
+
+export type { PDFViewerProps, PDFViewerState, PDFDocument, PDFPage, PDFRenderOptions } from './pdf'
+
+// ── PDF Sidebar ───────────────────────────────────────────────────────────────
+
+export type {
+  ClassificationInfo,
+  ValidationStatusValue,
+  ValidationInfo,
+  OCRBlock,
+  OCRData,
+  InventoryItemInfo,
+  PageSidebarData,
+  PDFSidebarProps,
+} from './sidebar'
