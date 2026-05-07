@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #f3f4f6;
+}
+
+.viewer {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sidebar {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: auto !important;
+  }
+
+  .sidebar {
+    width: 100% !important;
+    min-width: unset;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+    max-height: 400px;
+  }
+}

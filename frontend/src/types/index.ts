@@ -198,3 +198,16 @@ export interface ApiError {
 // ── PDF Viewer ────────────────────────────────────────────────────────────────
 
 export type { PDFViewerProps, PDFViewerState, PDFDocument, PDFPage, PDFRenderOptions } from './pdf'
+
+// ── PDF Sidebar ───────────────────────────────────────────────────────────────
+
+export type {
+  ClassificationInfo,
+  ValidationStatusValue,
+  ValidationInfo,
+  OCRBlock,
+  OCRData,
+  InventoryItemInfo,
+  PageSidebarData,
+  PDFSidebarProps,
+} from './sidebar'
