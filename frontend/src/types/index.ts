@@ -211,3 +211,16 @@ export type {
   PageSidebarData,
   PDFSidebarProps,
 } from './sidebar'
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+
+export type {
+  DashboardAlert,
+  DashboardAlertSeverity,
+  DashboardAlertTableProps,
+  DashboardMetric,
+  DashboardMetricKey,
+  DashboardStatCardProps,
+  DashboardSummary,
+  DashboardTrend,
+} from './dashboard'

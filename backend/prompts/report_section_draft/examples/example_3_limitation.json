@@ -1,0 +1,53 @@
+{
+  "input_summary": {
+    "section_title": "Limitações Técnicas da Análise",
+    "report_type": "trabalhista",
+    "context": "Seção destinada a registrar limitações decorrentes da ausência de cartões ponto completos.",
+    "evidence": [
+      {
+        "reference_id": "EV-DIL-004",
+        "description": "Registro de diligência indicando não recebimento dos cartões ponto de 03/2024 a 06/2024.",
+        "validation_status": "validated"
+      }
+    ],
+    "technical_findings": [
+      "Os cartões ponto do período de 03/2024 a 06/2024 não foram disponibilizados.",
+      "A ausência desses documentos limita a conferência direta da jornada no período."
+    ]
+  },
+  "expected_output": {
+    "section_title": "Limitações Técnicas da Análise",
+    "draft_text": "Esta seção registra limitação técnica relacionada à ausência de cartões ponto no período de 03/2024 a 06/2024. A informação decorre do registro de diligência EV-DIL-004, no qual consta o não recebimento da documentação solicitada.\n\nA falta dos cartões ponto impede a conferência direta das marcações de jornada no período indicado. Com isso, eventual análise de jornada, frequência, intervalos ou extrapolações de horário fica condicionada à obtenção de documentos complementares ou a outros elementos de prova expressamente validados.\n\nA limitação ora registrada não representa conclusão de mérito sobre a jornada efetivamente praticada. Trata-se de ressalva técnica quanto ao alcance da análise documental disponível.",
+    "evidence_references": [
+      {
+        "reference_id": "EV-DIL-004",
+        "description": "Diligência com registro de não recebimento dos cartões ponto.",
+        "validation_status": "validated",
+        "usage": "Usada para fundamentar a limitação técnica."
+      }
+    ],
+    "technical_basis": {
+      "methodology": "Registro de limitação técnica a partir de diligência documentada e validada.",
+      "findings": [
+        "Cartões ponto de 03/2024 a 06/2024 não foram recebidos.",
+        "A ausência documental limita a conferência direta da jornada."
+      ],
+      "assumptions": []
+    },
+    "limitations": [
+      "Não é possível confirmar as marcações de ponto do período sem documentação complementar.",
+      "A análise não deve extrapolar jornada efetiva sem base documental validada."
+    ],
+    "confidence": {
+      "level": "high",
+      "justification": "A limitação está baseada em registro de diligência validado."
+    },
+    "requires_human_review": true,
+    "safety_flags": [
+      {
+        "type": "scope_limit",
+        "message": "A seção deve permanecer restrita ao registro da limitação técnica, sem concluir mérito sobre a jornada."
+      }
+    ]
+  }
+}

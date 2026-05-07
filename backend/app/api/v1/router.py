@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import auth, cases, documents, quesitos, ai, processing_jobs, search, evidence, evidence_matrix, evidence_matrix_validator, diligence, technical_limitation, document_contradictions, calculations, calculation_evidence_links, technical_diary, technical_diary_evidence_links, reports, report_section_evidence_matrix_links, report_section_drafts
+from app.api.v1 import auth, cases, documents, quesitos, ai, processing_jobs, search, evidence, evidence_matrix, evidence_matrix_validator, diligence, technical_limitation, document_contradictions, calculations, calculation_evidence_links, technical_diary, technical_diary_evidence_links, reports, report_section_evidence_matrix_links, report_section_drafts, report_checklist, report_attachments, report_clarifications, fees
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -23,3 +23,7 @@ api_router.include_router(technical_diary_evidence_links.router)
 api_router.include_router(reports.router)
 api_router.include_router(report_section_evidence_matrix_links.router)
 api_router.include_router(report_section_drafts.router)
+api_router.include_router(report_checklist.router)
+api_router.include_router(report_attachments.router)
+api_router.include_router(report_clarifications.router)
+api_router.include_router(fees.router)

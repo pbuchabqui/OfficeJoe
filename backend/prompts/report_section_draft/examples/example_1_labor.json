@@ -1,0 +1,66 @@
+{
+  "input_summary": {
+    "section_title": "Análise de Divergência Salarial",
+    "report_type": "trabalhista",
+    "context": "Comparação entre holerite extraído e ficha financeira extraída para a competência 05/2024.",
+    "evidence": [
+      {
+        "reference_id": "EV-HOL-001",
+        "description": "Holerite de 05/2024, rubrica 001 - Salário Base, valor R$ 3.500,00.",
+        "validation_status": "validated"
+      },
+      {
+        "reference_id": "EV-FIN-001",
+        "description": "Ficha financeira de 05/2024, rubrica 001 - Salário Base, valor R$ 3.400,00.",
+        "validation_status": "validated"
+      }
+    ],
+    "technical_findings": [
+      "A mesma rubrica consta nos dois documentos para a competência 05/2024.",
+      "Há diferença de R$ 100,00 entre os valores extraídos."
+    ]
+  },
+  "expected_output": {
+    "section_title": "Análise de Divergência Salarial",
+    "draft_text": "Esta seção examina a divergência identificada na rubrica de salário base referente à competência 05/2024. Foram considerados o holerite identificado como EV-HOL-001 e a ficha financeira identificada como EV-FIN-001, ambos com evidências validadas.\n\nNo holerite, a rubrica 001 - Salário Base apresenta valor de R$ 3.500,00. Na ficha financeira, para a mesma competência e rubrica, consta o valor de R$ 3.400,00. A comparação documental indica diferença de R$ 100,00 entre os registros.\n\nA divergência deve ser tratada como inconsistência documental objetiva entre fontes de informação remuneratória. A análise não permite, isoladamente, concluir a origem da diferença ou atribuir responsabilidade, sendo necessária conferência complementar dos critérios de lançamento e da documentação de suporte.",
+    "evidence_references": [
+      {
+        "reference_id": "EV-HOL-001",
+        "description": "Holerite de 05/2024 com rubrica 001 - Salário Base.",
+        "validation_status": "validated",
+        "usage": "Usado como valor comparado do holerite."
+      },
+      {
+        "reference_id": "EV-FIN-001",
+        "description": "Ficha financeira de 05/2024 com rubrica 001 - Salário Base.",
+        "validation_status": "validated",
+        "usage": "Usado como valor comparado da ficha financeira."
+      }
+    ],
+    "technical_basis": {
+      "methodology": "Comparação direta de rubrica e valor para a mesma competência em documentos extraídos e validados.",
+      "findings": [
+        "Rubrica 001 consta em ambos os documentos.",
+        "Valor no holerite: R$ 3.500,00.",
+        "Valor na ficha financeira: R$ 3.400,00.",
+        "Diferença documental: R$ 100,00."
+      ],
+      "assumptions": []
+    },
+    "limitations": [
+      "A origem da diferença não pode ser definida apenas pela comparação entre os dois documentos.",
+      "A conclusão depende de eventual conferência dos critérios de lançamento."
+    ],
+    "confidence": {
+      "level": "high",
+      "justification": "As duas evidências comparadas estão validadas e tratam da mesma competência e rubrica."
+    },
+    "requires_human_review": true,
+    "safety_flags": [
+      {
+        "type": "contradiction",
+        "message": "Há divergência objetiva de valores entre documentos, sem conclusão sobre causa ou responsabilidade."
+      }
+    ]
+  }
+}

@@ -67,6 +67,10 @@ from app.db.models.report import (
     ReportSectionReviewStatus,
 )
 from app.db.models.report_section_evidence_matrix_link import ReportSectionEvidenceMatrixLink
+from app.db.models.report_checklist_item import ReportChecklistItem
+from app.db.models.report_attachment import ReportAttachment, ReportAttachmentType
+from app.db.models.report_clarification import ReportClarification, ReportClarificationStatus
+from app.db.models.fee import Fee, FeeStatus
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -123,4 +127,11 @@ __all__ = [
     "ReportStatus",
     "ReportSectionReviewStatus",
     "ReportSectionEvidenceMatrixLink",
+    "ReportChecklistItem",
+    "ReportAttachment",
+    "ReportAttachmentType",
+    "ReportClarification",
+    "ReportClarificationStatus",
+    "Fee",
+    "FeeStatus",
 ]

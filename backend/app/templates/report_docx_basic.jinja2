@@ -1,0 +1,25 @@
+LAUDO PERICIAL
+
+Título: {{ report.title }}
+Processo: {{ case_number }}
+Tipo: {{ report.report_type }}
+Versão: {{ report.current_version }}
+
+SEÇÕES
+
+{% for section in sections %}
+{{ section.section_order }}. {{ section.title }}
+{{ section.content if section.content else "(Sem conteúdo)" }}
+
+{% endfor %}
+ANEXOS E APÊNDICES
+
+{% if attachments %}
+{% for attachment in attachments %}
+{{ attachment.label }} {{ attachment.number }} - {{ attachment.title }}
+{% if attachment.description %}{{ attachment.description }}{% endif %}
+
+{% endfor %}
+{% else %}
+(Nenhum anexo ou apêndice cadastrado)
+{% endif %}
