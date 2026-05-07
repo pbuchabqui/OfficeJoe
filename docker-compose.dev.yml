@@ -1,0 +1,25 @@
+version: "3.9"
+# Sobrescreve docker-compose.yml para desenvolvimento local.
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  backend:
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    environment:
+      APP_ENV: development
+      APP_DEBUG: "true"
+
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+  celery_worker:
+    command: >
+      celery -A app.tasks.celery_app worker
+      --loglevel=debug
+      --concurrency=1
+      --queues=ocr,extraction,embeddings,default

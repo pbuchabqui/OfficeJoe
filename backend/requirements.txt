@@ -1,0 +1,53 @@
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
+
+# ── Banco de dados ─────────────────────────────────────────────────────────────
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+aiosqlite==0.20.0          # apenas para testes
+alembic==1.14.0
+psycopg2-binary==2.9.10    # Celery usa sessão síncrona
+
+# ── Validação e configuração ───────────────────────────────────────────────────
+pydantic==2.10.3
+pydantic-settings==2.6.1
+pydantic[email]==2.10.3
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.1
+passlib[bcrypt]==1.7.4
+
+# ── Storage ────────────────────────────────────────────────────────────────────
+minio==7.2.12
+
+# ── Filas ─────────────────────────────────────────────────────────────────────
+celery[redis]==5.4.0
+redis==5.2.1
+kombu==5.4.2
+flower==2.0.1
+
+# ── OCR ───────────────────────────────────────────────────────────────────────
+pdfplumber==0.11.4
+pymupdf==1.25.1             # fitz – renderiza páginas como imagem (sem alterar PDF)
+ocrmypdf==16.7.0
+pytesseract==0.3.13
+paddleocr==2.8.1
+paddlepaddle==2.6.2
+Pillow==11.0.0
+numpy==1.26.4
+
+# ── IA / Embeddings ────────────────────────────────────────────────────────────
+anthropic==0.40.0
+openai==1.57.4
+
+# ── Testes ────────────────────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+httpx==0.28.1
+anyio==4.7.0
+
+# ── Utilitários ────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+structlog==24.4.0
