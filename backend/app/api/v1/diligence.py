@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_permission
@@ -27,6 +28,7 @@ from app.services.diligence_service import (
     delete_item,
     list_items_by_diligence,
 )
+from app.services.diligence_document_service import generate_termo_diligencia_docx
 
 router = APIRouter(prefix="/diligences", tags=["Diligências"])
 
@@ -237,5 +239,29 @@ async def list_items_endpoint(
     try:
         items = await list_items_by_diligence(db, diligence_id)
         return items
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get(
+    "/{diligence_id}/download",
+    status_code=status.HTTP_200_OK,
+    summary="Baixar Termo de Diligência em DOCX",
+)
+async def download_termo_diligencia_endpoint(
+    diligence_id: str = Path(..., description="ID da diligência"),
+    current_user=Depends(require_permission("diligence:read")),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Gera e retorna um arquivo DOCX do Termo de Diligência.
+    """
+    try:
+        docx_stream = await generate_termo_diligencia_docx(db, diligence_id)
+        return StreamingResponse(
+            iter([docx_stream.getvalue()]),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename=termo_diligencia_{diligence_id}.docx"},
+        )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
