@@ -60,6 +60,9 @@ class Quesito(Base, UUIDPrimaryKey, TimestampMixin):
         "QuesitoAnswer", back_populates="quesito", cascade="all, delete-orphan",
         order_by="QuesitoAnswer.version",
     )
+    evidence_links: Mapped[List["QuestionEvidenceLink"]] = relationship(  # noqa: F821
+        "QuestionEvidenceLink", back_populates="quesito", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Quesito id={self.id} seq={self.sequence_number} status={self.status}>"

@@ -488,3 +488,277 @@ async def test_endpoint_batch_import_empty(client, perito_token, sample_case):
     assert response.status_code == 201
     data = response.json()
     assert len(data) == 0
+
+
+# ── Evidence Linking Tests ────────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_link_evidence_to_quesito(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/evidence vincula evidência."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Pergunta teste?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="Valor contestado",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    payload = {"evidence_item_id": evidence.id}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/evidence",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["quesito_id"] == quesito.id
+    assert data["evidence_item_id"] == evidence.id
+    assert data["evidence_item"]["id"] == evidence.id
+
+
+@pytest.mark.asyncio
+async def test_link_evidence_nonexistent_evidence(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/evidence com evidência inexistente retorna 404."""
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Pergunta teste?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+    await db_session.flush()
+
+    payload = {"evidence_item_id": str(uuid.uuid4())}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/evidence",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 404
+    assert "Evidência não encontrada" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_link_evidence_nonexistent_quesito(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/evidence com quesito inexistente retorna 404."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="Valor contestado",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    payload = {"evidence_item_id": evidence.id}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{str(uuid.uuid4())}/evidence",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 404
+    assert "Quesito não encontrado" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_link_evidence_from_different_case(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/evidence com evidência de outro caso retorna 400."""
+    from app.db.models.case import Case, CaseStatus, CaseType
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+
+    other_case = Case(
+        id=str(uuid.uuid4()),
+        case_number=f"{uuid.uuid4().hex[:7]}-56.2024.5.02.0001",
+        case_type=CaseType.TRABALHISTA.value,
+        title="Outro Caso",
+        status=CaseStatus.PLANEJAMENTO.value,
+        responsible_user_id=sample_case.responsible_user_id,
+    )
+    db_session.add(other_case)
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Pergunta teste?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=other_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=other_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="Valor contestado",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    payload = {"evidence_item_id": evidence.id}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/evidence",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 400
+    assert "não pertence ao mesmo processo" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_list_quesito_evidence(client, perito_token, sample_case, db_session):
+    """GET /cases/{case_id}/quesitos/{quesito_id}/evidence lista evidências."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+    from app.db.models.question_evidence_link import QuestionEvidenceLink
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Pergunta teste?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence1 = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="Valor contestado",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    evidence2 = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=2,
+        text_excerpt="Data do evento",
+        evidence_type="temporal",
+        reliability_level=2,
+    )
+    db_session.add(evidence1)
+    db_session.add(evidence2)
+    await db_session.flush()
+
+    link1 = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito.id,
+        evidence_item_id=evidence1.id,
+    )
+    link2 = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito.id,
+        evidence_item_id=evidence2.id,
+    )
+    db_session.add(link1)
+    db_session.add(link2)
+    await db_session.flush()
+
+    response = await client.get(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/evidence",
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["id"] == evidence1.id
+    assert data[1]["id"] == evidence2.id

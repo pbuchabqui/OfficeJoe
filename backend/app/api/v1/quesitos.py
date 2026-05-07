@@ -14,7 +14,9 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import get_client_ip, get_current_user, persist_audit, require_permission
 from app.core.audit import AuditAction, log_audit
 from app.db.models.case import Case
+from app.db.models.evidence_item import EvidenceItem
 from app.db.models.quesito import Quesito, QuesitoAnswer, QuesitoStatus
+from app.db.models.question_evidence_link import QuestionEvidenceLink
 from app.db.models.user import User
 from app.db.session import get_db
 from app.schemas.quesito import (
@@ -25,6 +27,9 @@ from app.schemas.quesito import (
     QuesitoResponse,
     QuesitoUpdate,
     QuesitoImportRequest,
+    QuestionEvidenceLinkRequest,
+    QuestionEvidenceLinkResponse,
+    EvidenceReference,
 )
 
 router = APIRouter(prefix="/cases/{case_id}/quesitos", tags=["Quesitos"])
@@ -336,3 +341,83 @@ async def batch_import_quesitos(
         .order_by(Quesito.sequence_number)
     )
     return [QuesitoResponse.model_validate(q) for q in result.scalars().all()]
+
+
+@router.post("/{quesito_id}/evidence", response_model=QuestionEvidenceLinkResponse, status_code=status.HTTP_201_CREATED)
+async def link_evidence_to_quesito(
+    case_id: str,
+    quesito_id: str,
+    payload: QuestionEvidenceLinkRequest,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> QuestionEvidenceLinkResponse:
+    """Vincula uma evidência a um quesito."""
+    quesito_result = await db.execute(
+        select(Quesito).where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+    )
+    quesito = quesito_result.scalar_one_or_none()
+    if not quesito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    evidence_result = await db.execute(
+        select(EvidenceItem).where(EvidenceItem.id == payload.evidence_item_id)
+    )
+    evidence = evidence_result.scalar_one_or_none()
+    if not evidence:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidência não encontrada.")
+
+    if evidence.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Evidência não pertence ao mesmo processo.",
+        )
+
+    link = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito_id,
+        evidence_item_id=payload.evidence_item_id,
+    )
+    db.add(link)
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="question_evidence_link",
+        resource_id=link.id,
+        details={"quesito_id": quesito_id, "evidence_item_id": payload.evidence_item_id},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    result = await db.execute(
+        select(QuestionEvidenceLink)
+        .where(QuestionEvidenceLink.id == link.id)
+        .options(selectinload(QuestionEvidenceLink.evidence_item))
+    )
+    return QuestionEvidenceLinkResponse.model_validate(result.scalar_one())
+
+
+@router.get("/{quesito_id}/evidence", response_model=List[EvidenceReference])
+async def list_quesito_evidence(
+    case_id: str,
+    quesito_id: str,
+    current_user=Depends(require_permission("quesito:read")),
+    db: AsyncSession = Depends(get_db),
+) -> List[EvidenceReference]:
+    """Lista evidências vinculadas a um quesito."""
+    quesito_result = await db.execute(
+        select(Quesito).where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+    )
+    if not quesito_result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    result = await db.execute(
+        select(EvidenceItem)
+        .join(QuestionEvidenceLink, EvidenceItem.id == QuestionEvidenceLink.evidence_item_id)
+        .where(QuestionEvidenceLink.quesito_id == quesito_id)
+        .order_by(EvidenceItem.created_at)
+    )
+    return [EvidenceReference.model_validate(e) for e in result.scalars().all()]

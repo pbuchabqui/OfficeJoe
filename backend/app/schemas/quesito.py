@@ -76,3 +76,29 @@ class QuesitoResponse(BaseModel):
 class AIQuesitoRequest(BaseModel):
     quesito_id: str
     use_document_ids: Optional[List[str]] = None  # None = todos os documentos do processo
+
+
+class EvidenceReference(BaseModel):
+    id: str
+    case_id: str
+    document_id: str
+    page_number: int
+    text_excerpt: str
+    evidence_type: str
+    reliability_level: int
+    validated: bool
+
+    model_config = {"from_attributes": True}
+
+
+class QuestionEvidenceLinkRequest(BaseModel):
+    evidence_item_id: str
+
+
+class QuestionEvidenceLinkResponse(BaseModel):
+    id: str
+    quesito_id: str
+    evidence_item_id: str
+    evidence_item: EvidenceReference
+
+    model_config = {"from_attributes": True}
