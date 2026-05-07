@@ -45,6 +45,7 @@ class AuditAction(str, Enum):
     # Processos / Quesitos
     CASE_CREATED = "case.created"
     CASE_UPDATED = "case.updated"
+    CASE_DELETED = "case.deleted"
     CASE_STATUS_CHANGED = "case.status_changed"
     QUESITO_CREATED = "quesito.created"
     QUESITO_ANSWERED = "quesito.answered"

@@ -15,11 +15,12 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_client_ip, get_current_user, persist_audit, require_permission
-from app.core.audit import AuditAction, log_audit
+from app.api.deps import get_client_ip, require_permission
+from app.core.audit import AuditAction
 from app.db.models.user import User
 from app.db.session import get_db
 from app.schemas.case import CaseCreate, CaseDetail, CaseSummary, CaseUpdate, PaginatedCases
+from app.services.audit_service import record_audit
 from app.services.case_service import (
     create_case,
     get_case,
@@ -63,16 +64,18 @@ async def create_case_endpoint(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
 
-    entry = log_audit(
+    await record_audit(
+        db,
         action=AuditAction.CASE_CREATED,
         user_id=current_user.id,
         user_email=current_user.email,
         ip_address=get_client_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        case_id=case.id,
         resource_type="case",
         resource_id=case.id,
         details={"case_number": case.case_number, "case_type": case.case_type},
     )
-    await persist_audit(entry, db, case_id=case.id)
 
     return CaseDetail.model_validate(case)
 
@@ -102,24 +105,26 @@ async def update_case_endpoint(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Processo não encontrado.")
 
     old_status = case.status
+    update_data = payload.model_dump(exclude_none=True)
     updated = await update_case(db, case, payload)
 
-    update_data = payload.model_dump(exclude_none=True)
     action = (
         AuditAction.CASE_STATUS_CHANGED
         if "status" in update_data
         else AuditAction.CASE_UPDATED
     )
-    entry = log_audit(
+    await record_audit(
+        db,
         action=action,
         user_id=current_user.id,
         user_email=current_user.email,
         ip_address=get_client_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        case_id=case_id,
         resource_type="case",
         resource_id=case_id,
         details={**update_data, "old_status": old_status},
     )
-    await persist_audit(entry, db, case_id=case_id)
 
     return CaseDetail.model_validate(updated)
 
@@ -135,15 +140,18 @@ async def delete_case_endpoint(
     if not case:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Processo não encontrado.")
 
+    case_number = case.case_number
     await soft_delete_case(db, case)
 
-    entry = log_audit(
-        action=AuditAction.CASE_UPDATED,
+    await record_audit(
+        db,
+        action=AuditAction.CASE_DELETED,
         user_id=current_user.id,
         user_email=current_user.email,
         ip_address=get_client_ip(request),
+        user_agent=request.headers.get("user-agent"),
+        case_id=case_id,
         resource_type="case",
         resource_id=case_id,
-        details={"action": "soft_delete", "case_number": case.case_number},
+        details={"case_number": case_number},
     )
-    await persist_audit(entry, db)
