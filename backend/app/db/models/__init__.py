@@ -12,6 +12,7 @@ from app.db.models.page_text_block import PageTextBlock
 from app.db.models.page_classification import DocumentClass, PageClassification
 from app.db.models.document_inventory_item import DocumentInventoryItem
 from app.db.models.text_chunk import TextChunk
+from app.db.models.evidence_item import EvidenceItem
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -25,4 +26,5 @@ __all__ = [
     "DocumentClass", "PageClassification",
     "DocumentInventoryItem",
     "TextChunk",
+    "EvidenceItem",
 ]

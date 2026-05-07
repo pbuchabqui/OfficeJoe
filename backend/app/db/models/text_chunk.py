@@ -1,7 +1,7 @@
 """Chunks de texto com embeddings para busca semântica via pgvector."""
 from __future__ import annotations
 
-from sqlalchemy import String, ForeignKey, Text, Integer
+from sqlalchemy import String, ForeignKey, Text, Integer, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKey
@@ -18,10 +18,7 @@ class TextChunk(Base, UUIDPrimaryKey, TimestampMixin):
     page_number: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     # Vector pgvector: 384 dimensões (compatível com embeddings simples)
-    embedding: Mapped[list[float]] = mapped_column(
-        "embedding",
-        nullable=False,
-    )
+    embedding: Mapped[list[float] | None] = mapped_column(JSON, nullable=True)
 
     document: Mapped["Document"] = relationship("Document")  # noqa: F821
 
