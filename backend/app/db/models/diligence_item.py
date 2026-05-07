@@ -19,9 +19,17 @@ class DiligenceItem(Base, UUIDPrimaryKey, TimestampMixin):
     period: Mapped[str] = mapped_column(String(200))
     technical_justification: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(50), default="pending")
+    documento_recebido_id: Mapped[str | None] = mapped_column(
+        ForeignKey("documents.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    status_recebimento: Mapped[str] = mapped_column(String(50), default="pendente")
+    observacao_pendencia: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     diligence: Mapped[Diligence] = relationship(
         "Diligence", foreign_keys=[diligence_id], back_populates="items"
+    )
+    documento_recebido: Mapped[Document | None] = relationship(
+        "Document", foreign_keys=[documento_recebido_id]
     )
 
     def __repr__(self) -> str:
@@ -29,5 +37,6 @@ class DiligenceItem(Base, UUIDPrimaryKey, TimestampMixin):
 
 
 from app.db.models.diligence import Diligence
+from app.db.models.document import Document
 
 __all__ = ["DiligenceItem"]

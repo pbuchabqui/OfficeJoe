@@ -11,6 +11,7 @@ from app.schemas.diligence import (
     DiligenceCreateRequest,
     DiligenceDetailedResponse,
     DiligenceItemCreateRequest,
+    DiligenceItemReceiptRequest,
     DiligenceItemResponse,
     DiligenceItemUpdateRequest,
     DiligencePaginatedResponse,
@@ -27,6 +28,7 @@ from app.services.diligence_service import (
     update_item,
     delete_item,
     list_items_by_diligence,
+    register_document_receipt,
 )
 from app.services.diligence_document_service import generate_termo_diligencia_docx
 
@@ -265,3 +267,35 @@ async def download_termo_diligencia_endpoint(
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.patch(
+    "/{diligence_id}/items/{item_id}/receipt",
+    response_model=DiligenceItemResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Registrar recebimento de documento",
+)
+async def register_document_receipt_endpoint(
+    diligence_id: str = Path(..., description="ID da diligência"),
+    item_id: str = Path(..., description="ID do item"),
+    payload: DiligenceItemReceiptRequest = ...,
+    current_user=Depends(require_permission("diligence:write")),
+    db: AsyncSession = Depends(get_db),
+) -> DiligenceItemResponse:
+    """
+    Registra o recebimento de um documento para um item de diligência.
+
+    Valida:
+    - Item existe e pertence à diligência
+    - Documento existe e pertence ao mesmo processo
+    - Registra entrada em log de auditoria
+    """
+    try:
+        item = await register_document_receipt(
+            db, item_id, diligence_id, current_user.id, payload
+        )
+        await db.commit()
+        await db.refresh(item)
+        return item
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

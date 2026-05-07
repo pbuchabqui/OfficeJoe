@@ -32,11 +32,26 @@ class DiligenceItemResponse(BaseModel):
     period: str
     technical_justification: str
     status: str
+    documento_recebido_id: str | None = None
+    status_recebimento: str
+    observacao_pendencia: str | None = None
     created_at: datetime
     updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class DiligenceItemReceiptRequest(BaseModel):
+    """Requisição para registrar recebimento de documento."""
+
+    documento_recebido_id: str = Field(..., description="ID do documento recebido")
+    status_recebimento: str = Field(
+        ...,
+        pattern="^(recebido|parcial|não_recebido)$",
+        description="Status do recebimento"
+    )
+    observacao_pendencia: str | None = Field(None, max_length=2000)
 
 
 class DiligenceCreateRequest(BaseModel):

@@ -7,9 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.case import Case
 from app.db.models.diligence import Diligence
 from app.db.models.diligence_item import DiligenceItem
+from app.db.models.document import Document
+from app.db.models.audit_log import AuditLog
 from app.schemas.diligence import (
     DiligenceCreateRequest,
     DiligenceItemCreateRequest,
+    DiligenceItemReceiptRequest,
     DiligenceItemUpdateRequest,
     DiligenceUpdateRequest,
 )
@@ -213,3 +216,58 @@ async def list_items_by_diligence(
     )
 
     return items.all()
+
+
+async def register_document_receipt(
+    db: AsyncSession,
+    item_id: str,
+    diligence_id: str,
+    user_id: str,
+    payload: DiligenceReceiptRequest,
+) -> DiligenceItem:
+    """Register receipt of a document for a diligence item.
+
+    Validates:
+    - Item exists and belongs to diligence
+    - Document exists and belongs to same case
+    - Records audit log entry
+    """
+    item = await db.get(DiligenceItem, item_id)
+    if not item:
+        raise ValueError(f"Item {item_id} not found")
+
+    if item.diligence_id != diligence_id:
+        raise ValueError(f"Item {item_id} does not belong to diligence {diligence_id}")
+
+    document = await db.get(Document, payload.documento_recebido_id)
+    if not document:
+        raise ValueError(f"Document {payload.documento_recebido_id} not found")
+
+    diligence = await db.get(Diligence, diligence_id)
+    if not diligence:
+        raise ValueError(f"Diligence {diligence_id} not found")
+
+    if document.case_id != diligence.case_id:
+        raise ValueError(
+            f"Document {payload.documento_recebido_id} does not belong to case {diligence.case_id}"
+        )
+
+    item.documento_recebido_id = payload.documento_recebido_id
+    item.status_recebimento = payload.status_recebimento
+    item.observacao_pendencia = payload.observacao_pendencia
+
+    audit_log = AuditLog(
+        resource_type="DiligenceItem",
+        resource_id=item_id,
+        action="document_received",
+        details={
+            "diligence_id": diligence_id,
+            "documento_recebido_id": payload.documento_recebido_id,
+            "status_recebimento": payload.status_recebimento,
+        },
+        user_id=user_id,
+    )
+    db.add(audit_log)
+
+    await db.flush()
+    return item
