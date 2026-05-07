@@ -1,21 +1,29 @@
 version: "3.9"
-# Sobrescreve docker-compose.yml para desenvolvimento local.
+
+# Sobrescreve docker-compose.yml para desenvolvimento local com hot reload.
 # Uso: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 services:
   backend:
     volumes:
       - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    command: >
+      sh -c "
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+      "
     environment:
       APP_ENV: development
       APP_DEBUG: "true"
+      LOG_LEVEL: debug
 
   frontend:
     volumes:
       - ./frontend:/app
       - /app/node_modules
     command: npm run dev -- --host 0.0.0.0
+    environment:
+      VITE_API_URL: http://backend:8000
 
   celery_worker:
     command: >
@@ -23,3 +31,13 @@ services:
       --loglevel=debug
       --concurrency=1
       --queues=processing,default
+      --prefetch-multiplier=1
+    environment:
+      LOG_LEVEL: debug
+
+  celery_beat:
+    command: celery -A app.tasks.celery_app beat --loglevel=debug --scheduler django_celery_beat.schedulers:DatabaseScheduler
+
+  flower:
+    environment:
+      FLOWER_BASIC_AUTH: "admin:admin"
