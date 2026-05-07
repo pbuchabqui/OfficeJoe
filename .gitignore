@@ -35,6 +35,8 @@ build/
 .pnp
 .pnp.js
 *.local
+*.d.ts
+*.tsbuildinfo
 
 # IDEs
 .idea/
