@@ -44,6 +44,10 @@ class EvidenceResponse(BaseModel):
     notes: str
     reliability_level: int
     validated: bool
+    validation_status: str
+    validated_by: str | None
+    validated_at: datetime | None
+    rejection_reason: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -58,3 +62,17 @@ class EvidencePaginatedResponse(BaseModel):
     limit: int = Field(..., description="Limite por página")
     offset: int = Field(..., description="Deslocamento")
     items: list[EvidenceResponse] = Field(..., description="Lista de evidências")
+
+
+class ValidateEvidenceRequest(BaseModel):
+    """Requisição para validar uma evidência."""
+
+    pass
+
+
+class RejectEvidenceRequest(BaseModel):
+    """Requisição para rejeitar uma evidência."""
+
+    rejection_reason: str = Field(
+        ..., min_length=1, max_length=2000, description="Motivo da rejeição"
+    )

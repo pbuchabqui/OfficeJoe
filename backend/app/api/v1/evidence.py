@@ -4,10 +4,21 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_permission
+from app.api.deps import require_permission, get_current_user, persist_audit
 from app.db.session import get_db
-from app.schemas.evidence import EvidenceCreateRequest, EvidencePaginatedResponse, EvidenceResponse
-from app.services.evidence_service import create_evidence, list_evidence_by_case
+from app.schemas.evidence import (
+    EvidenceCreateRequest,
+    EvidencePaginatedResponse,
+    EvidenceResponse,
+    ValidateEvidenceRequest,
+    RejectEvidenceRequest,
+)
+from app.services.evidence_service import (
+    create_evidence,
+    list_evidence_by_case,
+    validate_evidence,
+    reject_evidence,
+)
 
 router = APIRouter(prefix="/evidence", tags=["Evidência"])
 
@@ -64,3 +75,53 @@ async def list_evidence_endpoint(
         offset=offset,
         items=items,
     )
+
+
+@router.patch(
+    "/{evidence_id}/validate",
+    response_model=EvidenceResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Validar evidência",
+)
+async def validate_evidence_endpoint(
+    evidence_id: str,
+    payload: ValidateEvidenceRequest = ...,
+    current_user=Depends(require_permission("evidence:validate")),
+    db: AsyncSession = Depends(get_db),
+) -> EvidenceResponse:
+    """
+    Marca uma evidência como validada.
+    """
+    try:
+        evidence = await validate_evidence(db, evidence_id, current_user.id)
+        await db.commit()
+        await db.refresh(evidence)
+        return evidence
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.patch(
+    "/{evidence_id}/reject",
+    response_model=EvidenceResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Rejeitar evidência",
+)
+async def reject_evidence_endpoint(
+    evidence_id: str,
+    payload: RejectEvidenceRequest,
+    current_user=Depends(require_permission("evidence:validate")),
+    db: AsyncSession = Depends(get_db),
+) -> EvidenceResponse:
+    """
+    Marca uma evidência como rejeitada com motivo.
+    """
+    try:
+        evidence = await reject_evidence(
+            db, evidence_id, current_user.id, payload.rejection_reason
+        )
+        await db.commit()
+        await db.refresh(evidence)
+        return evidence
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
