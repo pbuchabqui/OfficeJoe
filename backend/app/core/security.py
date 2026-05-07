@@ -33,6 +33,7 @@ ROLE_PERMISSIONS: Dict[Role, List[str]] = {
         "quesito:read", "quesito:write",
         "ai:query", "ai:review",
         "evidence:read", "evidence:write", "evidence:validate",
+        "evidence_matrix:read", "evidence_matrix:write",
         "audit:read",
     ],
     Role.ASSISTENTE: [

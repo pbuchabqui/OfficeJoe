@@ -13,6 +13,7 @@ from app.db.models.page_classification import DocumentClass, PageClassification
 from app.db.models.document_inventory_item import DocumentInventoryItem
 from app.db.models.text_chunk import TextChunk
 from app.db.models.evidence_item import EvidenceItem
+from app.db.models.evidence_matrix_item import EvidenceMatrixItem
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -27,4 +28,5 @@ __all__ = [
     "DocumentInventoryItem",
     "TextChunk",
     "EvidenceItem",
+    "EvidenceMatrixItem",
 ]
