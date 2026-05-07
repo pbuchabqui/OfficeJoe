@@ -9,6 +9,7 @@ asyncpg==0.30.0
 aiosqlite==0.20.0          # apenas para testes
 alembic==1.14.0
 psycopg2-binary==2.9.10    # Celery usa sessão síncrona
+pgvector==0.3.0            # busca semântica com embeddings
 
 # ── Validação e configuração ───────────────────────────────────────────────────
 pydantic==2.10.3

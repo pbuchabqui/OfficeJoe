@@ -11,6 +11,7 @@ from app.db.models.file_page import FilePage
 from app.db.models.page_text_block import PageTextBlock
 from app.db.models.page_classification import DocumentClass, PageClassification
 from app.db.models.document_inventory_item import DocumentInventoryItem
+from app.db.models.text_chunk import TextChunk
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -23,4 +24,5 @@ __all__ = [
     "PageTextBlock",
     "DocumentClass", "PageClassification",
     "DocumentInventoryItem",
+    "TextChunk",
 ]
