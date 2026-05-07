@@ -23,8 +23,10 @@ from app.schemas.file_page import FilePagePreviewUrlResponse, FilePageResponse
 from app.schemas.page_text_block import FilePageOCRTextResponse, PageTextBlockResponse
 from app.schemas.page_classification import PageClassificationCorrectionRequest, PageClassificationResponse
 from app.services.document_service import DocumentService
+from app.services.inventory_service import generate_inventory, list_inventory
 from app.services.page_classification_service import PageClassificationService
 from app.services.storage_service import get_storage_service
+from app.schemas.inventory import InventoryItemResponse, InventoryResponse
 
 router = APIRouter(prefix="/cases/{case_id}/documents", tags=["Documentos"])
 
@@ -450,3 +452,61 @@ async def list_extractions(
     q = q.order_by(Extraction.page_number).offset(skip).limit(limit)
     result = await db.execute(q)
     return [ExtractionResponse.model_validate(e) for e in result.scalars().all()]
+
+
+# ── Inventário automático dos autos ──────────────────────────────────────────
+
+@router.post(
+    "/{document_id}/inventory",
+    response_model=InventoryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Gerar inventário automático",
+)
+async def generate_document_inventory(
+    case_id: str,
+    document_id: str,
+    current_user=Depends(require_permission("document:read")),
+    db: AsyncSession = Depends(get_db),
+) -> InventoryResponse:
+    """
+    Agrupa páginas consecutivas com a mesma classe documental e persiste o inventário.
+    Substitui completamente qualquer inventário anterior do documento.
+    Requer que o documento tenha classificações de página geradas.
+    """
+    doc = await db.get(Document, document_id)
+    if doc is None or doc.case_id != case_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    items = await generate_inventory(db, document_id)
+    return InventoryResponse(
+        document_id=document_id,
+        total_groups=len(items),
+        items=[InventoryItemResponse.model_validate(i) for i in items],
+    )
+
+
+@router.get(
+    "/{document_id}/inventory",
+    response_model=InventoryResponse,
+    summary="Listar inventário do documento",
+)
+async def get_document_inventory(
+    case_id: str,
+    document_id: str,
+    current_user=Depends(require_permission("document:read")),
+    db: AsyncSession = Depends(get_db),
+) -> InventoryResponse:
+    """
+    Retorna o inventário atual do documento, ordenado por página inicial.
+    Retorna lista vazia se o inventário ainda não foi gerado.
+    """
+    doc = await db.get(Document, document_id)
+    if doc is None or doc.case_id != case_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    items = await list_inventory(db, document_id)
+    return InventoryResponse(
+        document_id=document_id,
+        total_groups=len(items),
+        items=[InventoryItemResponse.model_validate(i) for i in items],
+    )

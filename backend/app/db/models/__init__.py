@@ -10,6 +10,7 @@ from app.db.models.processing_job import ProcessingJob, ProcessingJobStatus
 from app.db.models.file_page import FilePage
 from app.db.models.page_text_block import PageTextBlock
 from app.db.models.page_classification import DocumentClass, PageClassification
+from app.db.models.document_inventory_item import DocumentInventoryItem
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -21,4 +22,5 @@ __all__ = [
     "FilePage",
     "PageTextBlock",
     "DocumentClass", "PageClassification",
+    "DocumentInventoryItem",
 ]
