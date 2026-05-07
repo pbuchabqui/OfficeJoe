@@ -1,0 +1,227 @@
+{
+  "example": 3,
+  "scenario": "Labor - Salary Calculation and Overtime Compensation",
+  "question_id": "q-003-trabalhista",
+  "question_text": "Qual é o valor total de horas extras não compensadas ao empregado João Silva no período de janeiro a dezembro de 2023, considerando que o salário base registrado é de R$ 3.000,00 e a jornada contratual é de 44 horas semanais?",
+  "question_theme": "trabalhista",
+  "question_type": "técnico",
+  "analysis_timestamp": "2024-05-07T14:45:00Z",
+  "direct_findings": {
+    "findings": [
+      {
+        "finding": "Conforme contrato de trabalho, o empregado João Silva foi admitido em 10 de janeiro de 2023 com salário base mensal de R$ 3.000,00 e jornada de 44 horas semanais",
+        "evidence_reference": "Contrato de Trabalho, assinado em 10 de janeiro de 2023",
+        "document_type": "Contrato de Trabalho",
+        "specificity": "Cargo: Analista de Sistemas | Salário: R$ 3.000,00 | Jornada: 44h/semana | Escala: segunda a sexta, 8h48min/dia"
+      },
+      {
+        "finding": "Registros de ponto (Cartão de Ponto Eletrônico) indicam que o empregado realizou 287 horas extras ao longo de 2023",
+        "evidence_reference": "Cartão de Ponto Eletrônico - Relatório Consolidado de 2023",
+        "document_type": "Registro de Ponto Eletrônico",
+        "specificity": "Janeiro: 18h | Fevereiro: 22h | Março: 24h | Abril: 28h | Maio: 32h | Junho: 26h | Julho: 20h | Agosto: 25h | Setembro: 30h | Outubro: 28h | Novembro: 24h | Dezembro: 10h (Sem Comp.)"
+      },
+      {
+        "finding": "Folha de pagamento de 2023 registra compensações de horas extras apenas em março (R$ 750,00) e agosto (R$ 625,00), totalizando R$ 1.375,00 em compensação",
+        "evidence_reference": "Folhas de Pagamento - Recibos de Salário (RPA), janeiro a dezembro de 2023",
+        "document_type": "Folha de Pagamento",
+        "specificity": "Março: 24h compensadas a R$ 31,25/h | Agosto: 20h compensadas a R$ 31,25/h | Demais meses: sem compensação"
+      },
+      {
+        "finding": "Entrevista com gerente de RH confirma que as horas extras de 2023 não foram compensadas em dias de folga (banco de horas) nem em adicional financeiro, exceto pelos meses de março e agosto mencionados",
+        "evidence_reference": "Declaração do Gerente de RH, datada de 30 de abril de 2024",
+        "document_type": "Depoimento/Declaração",
+        "specificity": "Confirmação de que não existe banco de horas acumulado e que apenas dois meses receberam compensação"
+      },
+      {
+        "finding": "Conforme CLT (Consolidação das Leis do Trabalho), a hora extra deve ser compensada com adicional de 50% sobre a hora normal ou em dias de folga (1 dia a cada 4 horas extras), conforme acordo/contrato",
+        "evidence_reference": "CLT, Artigos 59 e 61",
+        "document_type": "Legislação Laboral",
+        "specificity": "Adicional: 50% sobre valor hora normal (no mínimo) | Compensação em folga: 1 dia para cada 4 horas extras trabalhadas"
+      }
+    ],
+    "evidence_base": "Análise completa de contrato de trabalho, registros de ponto eletrônico, folhas de pagamento mensais, recibos de salário, e legislação aplicável. Inclui também declaração do departamento de RH confirmando ausência de banco de horas."
+  },
+  "technical_analysis": {
+    "analysis_type": "salary_verification",
+    "methodology": "Cálculo de horas extras não compensadas comparando registros de ponto com compensações registradas em folha de pagamento. Aplicação de legislação trabalhista brasileira (CLT) para determinação de direitos. Cálculo de valor devido com base no salário base do empregado.",
+    "key_calculations": [
+      {
+        "calculation": "Total de horas extras trabalhadas em 2023",
+        "formula": "Soma das horas extras registradas no cartão de ponto por mês: 18+22+24+28+32+26+20+25+30+28+24+10",
+        "result": "287 horas extras",
+        "source": "Cartão de Ponto Eletrônico - Relatório Consolidado de 2023"
+      },
+      {
+        "calculation": "Horas extras compensadas financeiramente",
+        "formula": "Março (24h) + Agosto (20h) = 44 horas compensadas",
+        "result": "44 horas compensadas",
+        "source": "Folhas de Pagamento - Recibos RPA de março e agosto de 2023"
+      },
+      {
+        "calculation": "Horas extras não compensadas",
+        "formula": "Total de horas trabalhadas - Horas compensadas = 287 - 44",
+        "result": "243 horas extras não compensadas",
+        "source": "Diferença entre Cartão de Ponto e Folha de Pagamento"
+      },
+      {
+        "calculation": "Valor da hora normal",
+        "formula": "Salário mensal / horas mensais contratuais = R$ 3.000,00 / 176 horas (44h/semana × 4 semanas)",
+        "result": "R$ 17,05 por hora",
+        "source": "Contrato de Trabalho e Cálculo Padrão"
+      },
+      {
+        "calculation": "Valor da hora extra (adicional de 50%)",
+        "formula": "Valor hora normal × 1,50 = R$ 17,05 × 1,50",
+        "result": "R$ 25,58 por hora extra",
+        "source": "CLT Artigo 59 - Adicional de 50%"
+      },
+      {
+        "calculation": "Valor total devido como crédito de horas extras",
+        "formula": "(243 horas não compensadas × R$ 25,58) + (Horas em bancos de folga não gozadas × valor equivalente)",
+        "result": "243 × R$ 25,58 = R$ 6.215,94 em adicional | Mais direito a 60 dias úteis de folga (243h ÷ 4h = aproximadamente 61 dias, não concedidos)",
+        "source": "Cálculo derivado de legislação trabalhista"
+      }
+    ],
+    "analysis_results": "A análise técnica revela que o empregado João Silva trabalhou 287 horas extras durante o ano de 2023. Destas, apenas 44 horas (15% do total) foram compensadas financeiramente (nos meses de março e agosto). As 243 horas restantes (85% do total) permaneceram não compensadas, violando direitos assegurados pela CLT. Conforme legislação, estas horas deveriam ter sido compensadas por: (a) adicional de 50% sobre a hora normal (totalizando R$ 6.215,94), ou (b) concessão de dias de folga proporcional (aproximadamente 61 dias úteis não concedidos). Não existe registro de banco de horas ou concessão de folgas compensatórias, confirmado pelo departamento de RH."
+  },
+  "relevant_context": {
+    "applicable_standards": [
+      "CLT - Consolidação das Leis do Trabalho - Artigos 59, 61, 61-A",
+      "Lei 8.966/1994 - Redação ao Artigo 59 (banco de horas)",
+      "Súmula 376 do TST - Hora extra: compensação obrigatória"
+    ],
+    "relevant_rules": [
+      "Artigo 59 da CLT: A duração diária do trabalho pode ser acrescida de horas suplementares, em número não excedente de 2 (duas), mediante acordo escrito entre empregado e empregador, ou contrato coletivo de trabalho.",
+      "Artigo 61 da CLT: Ocorrendo necessidade imperiosa, o empregador poderá demandar trabalho suplementar não excedente de 12 (doze) horas, desde que realizado uma única vez na semana.",
+      "Adicional obrigatório: Mínimo de 50% sobre a hora normal (pode ser maior conforme acordo coletivo)",
+      "Compensação: Deve ser feita em até um ano ou através de banco de horas com previsão contratual"
+    ],
+    "contextual_factors": "Empresa não possui acordo coletivo de trabalho documentado. Contrato individual menciona jornada de 44h/semana mas não contém cláusula específica sobre compensação de horas extras. Setor de TI (Analista de Sistemas) tipicamente envolve variação de demanda que pode resultar em horas extras frequentes."
+  },
+  "preliminary_conclusion": {
+    "answer": "Com base na análise dos registros, o empregado João Silva tem direito a compensação de 243 horas extras não compensadas trabalhadas em 2023. O valor total devido é de aproximadamente R$ 6.215,94 (em crédito financeiro com adicional de 50%), ou alternativamente, direito à concessão de aproximadamente 61 dias úteis de folga compensatória. Este valor representa uma violação do direito trabalhista garantido pela CLT, na medida em que as horas extras foram trabalhadas mas não receberam a compensação legal obrigatória.",
+    "reasoning": "A conclusão decorre da análise direta da documentação que comprova: (1) existência de 287 horas extras segundo registro de ponto (documento oficial obrigatório); (2) compensação de apenas 44 horas em folha de pagamento; (3) diferença de 243 horas não compensadas; (4) ausência de banco de horas ou folgas compensatórias conforme confirmado por RH; (5) legislação trabalhista que obriga compensação de horas extras dentro de período determinado. A interpretação da CLT é clara quanto à obrigatoriedade de compensação por adicional de 50% ou por dias de folga, sem margem para não-compensação indefinida.",
+    "evidence_support": [
+      {
+        "evidence_item": "Cartão de Ponto Eletrônico - Registro oficial de horas",
+        "how_supports_conclusion": "Documento de caráter probante sobre as 287 horas trabalhadas além da jornada contratual"
+      },
+      {
+        "evidence_item": "Folhas de Pagamento (RPA)",
+        "how_supports_conclusion": "Demonstra que apenas 44 horas foram compensadas financeiramente em dois meses, deixando claro a não-compensação de 243 horas"
+      },
+      {
+        "evidence_item": "Contrato de Trabalho",
+        "how_supports_conclusion": "Estabelece claramente a jornada de 44h/semana e salário base, permitindo cálculo preciso do valor da hora extra"
+      },
+      {
+        "evidence_item": "Declaração de RH",
+        "how_supports_conclusion": "Confirma a inexistência de compensação alternativa via banco de horas ou folgas concedidas"
+      },
+      {
+        "evidence_item": "Legislação Trabalhista (CLT)",
+        "how_supports_conclusion": "Estabelece direito inelutável do empregado à compensação de horas extras"
+      }
+    ]
+  },
+  "confidence_level": 0.94,
+  "confidence_justification": {
+    "basis": "Confiança muito alta baseada em documentação oficial e registro obrigatório de ponto. A legislação trabalhista é clara e não deixa margem para interpretações divergentes. A documentação é consistente e completa.",
+    "limitations": [
+      "Não foi possível revisar se houve acordo informal ou verbal de não-compensação (embora isto seria ilegal conforme jurisprudência)",
+      "Não foi possível verificar se empregado recebeu compensação indireta (bônus, benefícios) que pudesse ser considerada como compensação"
+    ],
+    "certainty_factors": [
+      "Registro de ponto é documento oficial com valor probante máximo",
+      "Folha de pagamento registra compensação de forma inequívoca apenas em dois meses",
+      "Cálculo de horas é matemático e verificável",
+      "Legislação aplicável é clara e consolidada em jurisprudência",
+      "Confirmação de RH elimina possibilidade de compensação alternativa desconhecida"
+    ]
+  },
+  "evidence_referenced": {
+    "total_evidence_items": 6,
+    "evidence_items": [
+      {
+        "evidence_id": "ev-001-contract",
+        "document_type": "Contrato de Trabalho",
+        "date_range": "10 de janeiro de 2023",
+        "relevance": "primary",
+        "usage": "Estabelece jornada contratual (44h/semana) e salário base para cálculo de direitos"
+      },
+      {
+        "evidence_id": "ev-002-timecard",
+        "document_type": "Cartão de Ponto Eletrônico",
+        "date_range": "Janeiro - Dezembro 2023",
+        "relevance": "primary",
+        "usage": "Registro oficial de horas trabalhadas, incluindo horas extras (287 horas)"
+      },
+      {
+        "evidence_id": "ev-003-payroll",
+        "document_type": "Folhas de Pagamento (Recibos RPA)",
+        "date_range": "Janeiro - Dezembro 2023",
+        "relevance": "primary",
+        "usage": "Demonstra compensação de horas apenas em março e agosto (44 horas)"
+      },
+      {
+        "evidence_id": "ev-004-hr-statement",
+        "document_type": "Declaração de RH",
+        "date_range": "30 de abril de 2024",
+        "relevance": "primary",
+        "usage": "Confirmação oficial da empresa que não existe banco de horas ou compensação alternativa"
+      },
+      {
+        "evidence_id": "ev-005-legislation",
+        "document_type": "CLT - Consolidação das Leis do Trabalho",
+        "date_range": "N/A",
+        "relevance": "primary",
+        "usage": "Define direitos relativos a horas extras e obrigatoriedade de compensação"
+      },
+      {
+        "evidence_id": "ev-006-jurisprudence",
+        "document_type": "Súmula 376 do TST",
+        "date_range": "N/A",
+        "relevance": "supporting",
+        "usage": "Jurisprudência consolidada sobre compensação obrigatória de horas extras"
+      }
+    ],
+    "evidence_gaps": [
+      "Não foi fornecida comunicação escrita formalizando acordo de banco de horas (se existisse)",
+      "Não foi fornecido histórico de folgas compensatórias concedidas no período posterior a 2023",
+      "Não foi fornecido acordo coletivo de trabalho que poderia ter provisões diferentes"
+    ]
+  },
+  "limitations_and_caveats": {
+    "data_limitations": [
+      "Análise limitada a evidência documentada; não inclui possíveis comunicações verbais entre empregador e empregado",
+      "Não foi possível revisar se houve compensação através de bônus, comissões ou benefícios adicionais não catalogados como 'horas extras'"
+    ],
+    "analytical_limitations": [
+      "Análise não inclui cálculo de juros moratórios (que seriam devidos se não pago até a data do cálculo)",
+      "Não foi realizado cálculo de potencial multa por não-cumprimento (pode atingir até 100% do valor devido conforme jurisprudência)",
+      "Análise não inclui avaliação de possíveis reclamações trabalhistas e seus prazos prescricionais"
+    ],
+    "assumptions": [
+      {
+        "assumption": "Pressupõe-se que o valor de R$ 17,05 por hora está correto baseado no salário base de R$ 3.000 e 176 horas mensais contratuais",
+        "justification": "Cálculo padrão; porém não foi fornecido detalhamento se há adicionais ao salário base que deveriam ser incluídos"
+      },
+      {
+        "assumption": "Pressupõe-se que todas as 287 horas registradas no cartão de ponto foram legitimamente trabalhadas e não registros duplicados ou errados",
+        "justification": "Cartão de ponto eletrônico é documento oficial; assume-se estar correto a menos que haja contestação específica"
+      }
+    ],
+    "recommendations": [
+      "Cálculo de juros moratórios desde a data de não-compensação até presente (aproximadamente 5-10% ao ano)",
+      "Verificação de se há documentação de folgas concedidas após dezembro de 2023 que pudessem ter compensado horas de 2023",
+      "Revisão de possível acordo coletivo que pudesse ter provisões diferentes de compensação",
+      "Documentação clara de qualquer compensação indireta que tenha sido oferecida",
+      "Realização de circularização (confirmação escrita) com o empregado sobre os valores calculados"
+    ]
+  },
+  "quality_indicators": {
+    "completeness": "complete",
+    "evidence_coverage": "comprehensive",
+    "technical_soundness": "sound"
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "example": 2,
+  "scenario": "Financial - Liquidity and Cash Flow Analysis",
+  "question_id": "q-002-financeiro",
+  "question_text": "Qual era a situação de liquidez da empresa em 31 de dezembro de 2023? A empresa possuía recursos financeiros suficientes para cumprir com suas obrigações de curto prazo?",
+  "question_theme": "financeiro",
+  "question_type": "técnico",
+  "analysis_timestamp": "2024-05-07T11:15:00Z",
+  "direct_findings": {
+    "findings": [
+      {
+        "finding": "A empresa possuía R$ 425.000,00 em caixa e equivalentes de caixa em 31 de dezembro de 2023",
+        "evidence_reference": "Balanço Patrimonial em 31 de dezembro de 2023, Ativo Circulante - Disponibilidades",
+        "document_type": "Balanço Patrimonial (Balance Sheet)",
+        "specificity": "Caixa: R$ 45.000 | Bancos: R$ 380.000 | Aplicações de Curto Prazo: R$ 0"
+      },
+      {
+        "finding": "Contas a receber no curto prazo totalizam R$ 680.000,00, com 85% esperado a receber em até 30 dias conforme relatório de aging",
+        "evidence_reference": "Relatório de Contas a Receber - Aging Schedule em 31 de dezembro de 2023",
+        "document_type": "Relatório de Contas a Receber",
+        "specificity": "Até 30 dias: R$ 578.000 (85%) | 30-60 dias: R$ 85.000 (12,5%) | Acima de 60 dias: R$ 17.000 (2,5%)"
+      },
+      {
+        "finding": "Estoques registrados em 31 de dezembro de 2023 totalizam R$ 520.000,00, com rotação média de 60 dias",
+        "evidence_reference": "Balanço Patrimonial, Ativo Circulante - Estoques, e Relatório de Rotação de Estoques",
+        "document_type": "Balanço Patrimonial e Análise de Estoque",
+        "specificity": "Giro de estoque: 6 vezes ao ano (aproximadamente 60 dias de cobertura)"
+      },
+      {
+        "finding": "Passivo circulante em 31 de dezembro de 2023 totaliza R$ 950.000,00",
+        "evidence_reference": "Balanço Patrimonial em 31 de dezembro de 2023, Passivo Circulante",
+        "document_type": "Balanço Patrimonial",
+        "specificity": "Fornecedores: R$ 450.000 | Empréstimos CP: R$ 350.000 | Impostos a Pagar: R$ 150.000"
+      },
+      {
+        "finding": "Fluxo de caixa operacional de dezembro de 2023 apresentou entrada de R$ 780.000,00, comparado com saídas de R$ 650.000,00",
+        "evidence_reference": "Demonstração de Fluxo de Caixa - Dezembro 2023",
+        "document_type": "Demonstração de Fluxo de Caixa (Cash Flow Statement)",
+        "specificity": "Fluxo operacional: R$ 130.000 | Fluxo de investimentos: (R$ 50.000) | Fluxo de financiamento: (R$ 30.000)"
+      }
+    ],
+    "evidence_base": "Revisão completa de Balanço Patrimonial, Demonstração de Fluxo de Caixa, relatórios de Contas a Receber e Estoques, além de registros bancários do mês de dezembro de 2023"
+  },
+  "technical_analysis": {
+    "analysis_type": "financial_ratios",
+    "methodology": "Análise de ratios de liquidez (Liquidez Corrente, Liquidez Seca, Liquidez Imediata) complementada por análise de fluxo de caixa. Também realizada análise de ciclo de conversão de caixa e projeção de fluxo de caixa para janeiro de 2024 baseada em padrões históricos.",
+    "key_calculations": [
+      {
+        "calculation": "Liquidez Corrente",
+        "formula": "Ativo Circulante / Passivo Circulante = (425.000 + 680.000 + 520.000) / 950.000",
+        "result": "1.625.000 / 950.000 = 1,71",
+        "source": "Balanço Patrimonial em 31 de dezembro de 2023"
+      },
+      {
+        "calculation": "Liquidez Seca (excluindo estoques)",
+        "formula": "(Ativo Circulante - Estoques) / Passivo Circulante = (425.000 + 680.000) / 950.000",
+        "result": "1.105.000 / 950.000 = 1,16",
+        "source": "Balanço Patrimonial em 31 de dezembro de 2023"
+      },
+      {
+        "calculation": "Liquidez Imediata",
+        "formula": "Disponibilidades / Passivo Circulante = 425.000 / 950.000",
+        "result": "0,45",
+        "source": "Balanço Patrimonial em 31 de dezembro de 2023"
+      },
+      {
+        "calculation": "Ciclo de Conversão de Caixa",
+        "formula": "Dias de Estoque (60) + Dias de Contas a Receber (25 dias, ponderado pelo aging) - Dias de Contas a Pagar (45 dias)",
+        "result": "60 + 25 - 45 = 40 dias",
+        "source": "Relatório de Estoques, Contas a Receber (aging) e Contas a Pagar em 31 de dezembro de 2023"
+      },
+      {
+        "calculation": "Cobertura de Passivo Circulante por Fluxo Operacional Mensal",
+        "formula": "Passivo Circulante / Fluxo Operacional Médio Mensal (dezembro: 130.000)",
+        "result": "950.000 / 130.000 = 7,3 meses",
+        "source": "Demonstração de Fluxo de Caixa e Balanço Patrimonial"
+      }
+    ],
+    "analysis_results": "A análise de liquidez revela uma situação moderada. O índice de liquidez corrente de 1,71 indica que para cada real de passivo circulante, a empresa tem R$ 1,71 de ativo circulante, o que é considerado saudável (acima de 1,0). No entanto, o índice de liquidez imediata de 0,45 sugere que apenas 45% do passivo circulante pode ser coberto com caixa e equivalentes imediatamente disponíveis. A liquidez seca de 1,16 é positiva, indicando que mesmo excluindo estoques, a empresa ainda teria capacidade de cumprir obrigações de curto prazo. O ciclo de conversão de caixa de 40 dias é razoável para o setor, mas requer atenção ao fluxo operacional. O fluxo de caixa operacional positivo de R$ 130.000 em dezembro sugere capacidade de geração de caixa operacional suficiente para cobrir o passivo circulante em aproximadamente 7 meses."
+  },
+  "relevant_context": {
+    "applicable_standards": [
+      "IFRS 7 - Divulgações de Instrumentos Financeiros (informações de risco de liquidez)",
+      "CPC 03 - Demonstração de Fluxos de Caixa",
+      "NBC TG 26 (R5) - Apresentação das Demonstrações Contábeis"
+    ],
+    "relevant_rules": [
+      "Lei 11.638/2007 - Requisitos de apresentação de informações de liquidez",
+      "Resolução 4.557/2017 (Banco Central) - Requisitos de gestão de risco de liquidez (se aplicável para instituições)"
+    ],
+    "contextual_factors": "A empresa opera em setor de distribuição com ciclos sazonais moderados. Dezembro é período de maior atividade comercial (festivo). Pressupõe-se que janeiro de 2024 terá redução de 30-40% nas atividades comparado com dezembro, padrão histórico da indústria."
+  },
+  "preliminary_conclusion": {
+    "answer": "A situação de liquidez da empresa em 31 de dezembro de 2023 é MODERADAMENTE SAUDÁVEL no curto prazo. A empresa possuía recursos suficientes para cumprir com suas obrigações circulantes, embora com necessidade de monitoramento contínuo. O índice de liquidez corrente de 1,71 é satisfatório, indicando que há R$ 1,71 de ativo circulante para cada R$ 1,00 de passivo circulante. Porém, a liquidez imediata reduzida (0,45) indica que a empresa depende de recebimentos de contas a receber e conversão de estoques para manter fluxo de caixa adequado.",
+    "reasoning": "Esta conclusão é baseada na análise integrada de múltiplas métricas de liquidez. O índice de liquidez corrente acima de 1,0 sugere solvência técnica no curto prazo. Os receivables com 85% esperado a receber em até 30 dias fornecem fluxo de caixa previsível. O fluxo de caixa operacional positivo (R$ 130.000 em dezembro) e ciclo de conversão de caixa razoável (40 dias) indicam que a empresa é capaz de gerar caixa de suas operações. No entanto, a dependência de conversão de estoques e recebimentos para manter liquidez, aliada ao índice de liquidez imediata baixo, sugere que uma interrupção no ciclo de vendas ou atrasos nos recebimentos poderia criar pressão de caixa.",
+    "evidence_support": [
+      {
+        "evidence_item": "Balanço Patrimonial em 31 de dezembro de 2023",
+        "how_supports_conclusion": "Fornece os saldos oficiais de ativo e passivo circulante que são base para cálculo dos índices de liquidez"
+      },
+      {
+        "evidence_item": "Relatório de Contas a Receber (Aging Schedule)",
+        "how_supports_conclusion": "Demonstra que a maioria dos receivables (85%) será convertido em caixa rapidamente (até 30 dias), reduzindo o risco de liquidez"
+      },
+      {
+        "evidence_item": "Demonstração de Fluxo de Caixa - Dezembro 2023",
+        "how_supports_conclusion": "Comprova geração de caixa operacional positiva, indicando capacidade de pagamento de obrigações de curto prazo"
+      },
+      {
+        "evidence_item": "Relatório de Rotação de Estoques",
+        "how_supports_conclusion": "Indica que estoques serão convertidos em vendas e caixa em período razoável (60 dias)"
+      }
+    ]
+  },
+  "confidence_level": 0.85,
+  "confidence_justification": {
+    "basis": "Confiança substancial baseada em dados contábeis oficiais, índices múltiplos de liquidez consistentes com conclusão de solvência moderada, e evidência de fluxo de caixa operacional positivo. Limitações decorrem de período de análise ser mês de pico sazonal.",
+    "limitations": [
+      "Análise baseada em período de dezembro, que é mês com maior atividade sazonal; situação de janeiro pode ser significativamente diferente",
+      "Projeções de fluxo de caixa futuro baseadas em padrões históricos podem não ser acuradas se houver mudanças nos padrões de negócio",
+      "Não foi avaliado custo de capital de giro ou taxas de juros em financiamentos circulantes"
+    ],
+    "certainty_factors": [
+      "Índices de liquidez calculados a partir de dados oficiais de Balanço Patrimonial",
+      "Aging de contas a receber confirma recebimento previsível em curto prazo",
+      "Fluxo de caixa operacional positivo demonstrado",
+      "Ciclo de conversão de caixa dentro de padrões normais de indústria"
+    ]
+  },
+  "evidence_referenced": {
+    "total_evidence_items": 5,
+    "evidence_items": [
+      {
+        "evidence_id": "ev-001-balance-sheet",
+        "document_type": "Balanço Patrimonial (Balance Sheet)",
+        "date_range": "31 de dezembro de 2023",
+        "relevance": "primary",
+        "usage": "Fonte de dados para saldos de ativo e passivo circulante"
+      },
+      {
+        "evidence_id": "ev-002-cash-flow",
+        "document_type": "Demonstração de Fluxo de Caixa (Cash Flow Statement)",
+        "date_range": "Dezembro 2023",
+        "relevance": "primary",
+        "usage": "Análise de capacidade de geração de caixa e movimentações de curto prazo"
+      },
+      {
+        "evidence_id": "ev-003-ar-aging",
+        "document_type": "Relatório de Contas a Receber - Aging Schedule",
+        "date_range": "31 de dezembro de 2023",
+        "relevance": "primary",
+        "usage": "Avaliação de previsibilidade de recebimentos em curto prazo"
+      },
+      {
+        "evidence_id": "ev-004-inventory",
+        "document_type": "Relatório de Rotação de Estoques",
+        "date_range": "2023 (anualizado)",
+        "relevance": "supporting",
+        "usage": "Cálculo do ciclo de conversão de caixa"
+      },
+      {
+        "evidence_id": "ev-005-bank-statements",
+        "document_type": "Extratos Bancários",
+        "date_range": "Dezembro 2023",
+        "relevance": "supporting",
+        "usage": "Validação de saldos de caixa"
+      }
+    ],
+    "evidence_gaps": [
+      "Projeção de fluxo de caixa para janeiro de 2024 para avaliar se situação é sustentável além período sazonal de pico",
+      "Contratos de empréstimo com informações de datas de vencimento específicas no passivo circulante",
+      "Informações sobre linhas de crédito disponíveis (limite de cheque especial, linhas de capital de giro não utilizadas)"
+    ]
+  },
+  "limitations_and_caveats": {
+    "data_limitations": [
+      "Análise baseada em dados de 31 de dezembro de 2023, que é período de pico sazonal; situação em outros meses pode variar significativamente",
+      "Não foram fornecidas projeções de fluxo de caixa para janeiro de 2024 em diante"
+    ],
+    "analytical_limitations": [
+      "Análise não inclui avaliação de qualidade de crédito (risco de default de clientes ou inadimplência)",
+      "Não foi realizada análise de refinanciamento do passivo (possibilidade de renovar ou rolar dívidas)"
+    ],
+    "assumptions": [
+      {
+        "assumption": "Pressupõe-se que contas a receber com vencimento até 30 dias serão recebidas conforme previsto",
+        "justification": "Baseado no histórico de 85% das contas neste faixa; porém ausência de documentação de default rates"
+      },
+      {
+        "assumption": "Pressupõe-se que estoques serão convertidos em vendas em período médio de 60 dias",
+        "justification": "Baseado no giro histórico de estoques; assume-se que não há estoques obsoletos ou excedentes"
+      },
+      {
+        "assumption": "Pressupõe-se que fluxo operacional de janeiro será 30-40% inferior a dezembro",
+        "justification": "Padrão histórico de sazonalidade do setor; sem documentação explícita de projeções da empresa"
+      }
+    ],
+    "recommendations": [
+      "Elaborar projeção de fluxo de caixa para primeiro trimestre de 2024 para validar se situação de liquidez se mantém após período sazonal",
+      "Verificar disponibilidade de linhas de crédito não utilizadas como buffer adicional para risco de liquidez",
+      "Avaliar cronograma específico de vencimentos de empréstimos de curto prazo incluídos no passivo de R$ 350.000",
+      "Realizar teste de sensibilidade: impacto de atraso de 30 dias em 50% dos recebimentos sobre caixa disponível"
+    ]
+  },
+  "quality_indicators": {
+    "completeness": "substantial",
+    "evidence_coverage": "adequate",
+    "technical_soundness": "sound"
+  }
+}
