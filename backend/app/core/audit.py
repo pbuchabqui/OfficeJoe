@@ -30,6 +30,9 @@ class AuditAction(str, Enum):
     DOCUMENT_INTEGRITY_CHECK = "document.integrity_check"
     DOCUMENT_INTEGRITY_FAIL = "document.integrity_fail"
 
+    # Inventário
+    INVENTORY_ITEM_EDITED = "inventory.item_edited"
+
     # OCR / Extração
     OCR_STARTED = "ocr.started"
     OCR_COMPLETED = "ocr.completed"

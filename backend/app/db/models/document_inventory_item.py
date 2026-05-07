@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, UUIDPrimaryKey
@@ -25,5 +25,13 @@ class DocumentInventoryItem(Base, UUIDPrimaryKey):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
+    # Correção manual
+    custom_label: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_relevant: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    edited_by_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     document: Mapped["Document"] = relationship("Document")  # noqa: F821
+    edited_by: Mapped["User"] = relationship("User")  # noqa: F821

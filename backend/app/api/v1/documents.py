@@ -23,10 +23,10 @@ from app.schemas.file_page import FilePagePreviewUrlResponse, FilePageResponse
 from app.schemas.page_text_block import FilePageOCRTextResponse, PageTextBlockResponse
 from app.schemas.page_classification import PageClassificationCorrectionRequest, PageClassificationResponse
 from app.services.document_service import DocumentService
-from app.services.inventory_service import generate_inventory, list_inventory
+from app.services.inventory_service import generate_inventory, list_inventory, update_inventory_item
 from app.services.page_classification_service import PageClassificationService
 from app.services.storage_service import get_storage_service
-from app.schemas.inventory import InventoryItemResponse, InventoryResponse
+from app.schemas.inventory import InventoryItemResponse, InventoryResponse, InventoryItemUpdateRequest
 
 router = APIRouter(prefix="/cases/{case_id}/documents", tags=["Documentos"])
 
@@ -510,3 +510,53 @@ async def get_document_inventory(
         total_groups=len(items),
         items=[InventoryItemResponse.model_validate(i) for i in items],
     )
+
+
+@router.patch(
+    "/{document_id}/inventory/{item_id}",
+    response_model=InventoryItemResponse,
+    summary="Editar item de inventário",
+)
+async def update_inventory_item_endpoint(
+    case_id: str,
+    document_id: str,
+    item_id: str,
+    payload: InventoryItemUpdateRequest,
+    request: Request,
+    current_user=Depends(require_permission("document:write")),
+    db: AsyncSession = Depends(get_db),
+) -> InventoryItemResponse:
+    """
+    Edita um item de inventário: rename, alterar classe/páginas, marcar relevância.
+    Registra mudanças em auditoria. Valida start_page <= end_page.
+    """
+    from app.db.models.document_inventory_item import DocumentInventoryItem
+
+    doc = await db.get(Document, document_id)
+    if doc is None or doc.case_id != case_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    item = await db.get(DocumentInventoryItem, item_id)
+    if item is None or item.document_id != document_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item de inventário não encontrado.")
+
+    if not payload.has_changes():
+        return InventoryItemResponse.model_validate(item)
+
+    try:
+        await update_inventory_item(
+            db,
+            item,
+            custom_label=payload.custom_label,
+            document_class=payload.document_class,
+            start_page=payload.start_page,
+            end_page=payload.end_page,
+            is_relevant=payload.is_relevant,
+            user_id=current_user.id,
+            user_email=current_user.email,
+            ip_address=get_client_ip(request),
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    return InventoryItemResponse.model_validate(item)

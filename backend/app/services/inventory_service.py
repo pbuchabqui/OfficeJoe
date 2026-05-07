@@ -7,11 +7,13 @@ Cada geração substitui completamente o inventário anterior do documento.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import AuditAction, log_audit
+from app.db.models.audit_log import AuditLog
 from app.db.models.document_inventory_item import DocumentInventoryItem
 from app.db.models.page_classification import PageClassification
 
@@ -121,3 +123,87 @@ async def list_inventory(
         .order_by(DocumentInventoryItem.start_page.asc())
     )
     return list(result.scalars().all())
+
+
+async def update_inventory_item(
+    db: AsyncSession,
+    item: DocumentInventoryItem,
+    *,
+    custom_label: Optional[str] = None,
+    document_class: Optional[str] = None,
+    start_page: Optional[int] = None,
+    end_page: Optional[int] = None,
+    is_relevant: Optional[bool] = None,
+    user_id: Optional[str] = None,
+    user_email: Optional[str] = None,
+    ip_address: Optional[str] = None,
+) -> dict:
+    """
+    Atualiza um item de inventário e registra auditoria.
+    Valida start_page <= end_page. Retorna dict com before/after para auditoria.
+    """
+    changes = {}
+
+    if custom_label is not None and custom_label != item.custom_label:
+        changes["custom_label"] = {"before": item.custom_label, "after": custom_label}
+        item.custom_label = custom_label
+
+    if document_class is not None and document_class != item.document_class:
+        changes["document_class"] = {"before": item.document_class, "after": document_class}
+        item.document_class = document_class
+
+    if start_page is not None and start_page != item.start_page:
+        changes["start_page"] = {"before": item.start_page, "after": start_page}
+        item.start_page = start_page
+
+    if end_page is not None and end_page != item.end_page:
+        changes["end_page"] = {"before": item.end_page, "after": end_page}
+        item.end_page = end_page
+
+    if is_relevant is not None and is_relevant != item.is_relevant:
+        changes["is_relevant"] = {"before": item.is_relevant, "after": is_relevant}
+        item.is_relevant = is_relevant
+
+    # Valida integridade: start_page <= end_page
+    if item.start_page > item.end_page:
+        raise ValueError(
+            f"start_page ({item.start_page}) não pode ser maior que end_page ({item.end_page})"
+        )
+
+    # Recalcula page_count se necessário
+    item.page_count = item.end_page - item.start_page + 1
+    item.edited_by_id = user_id
+    item.edited_at = datetime.now(timezone.utc)
+
+    await db.flush()
+
+    # Log de auditoria
+    if changes or user_id:
+        entry = log_audit(
+            action=AuditAction.INVENTORY_ITEM_EDITED,
+            user_id=user_id,
+            user_email=user_email,
+            ip_address=ip_address,
+            resource_type="inventory_item",
+            resource_id=item.id,
+            details={
+                "document_id": item.document_id,
+                "changes": changes,
+            },
+        )
+        log = AuditLog(
+            id=entry.id,
+            timestamp=entry.timestamp,
+            action=entry.action.value,
+            success=entry.success,
+            user_id=entry.user_id,
+            user_email=entry.user_email,
+            ip_address=entry.ip_address,
+            resource_type=entry.resource_type,
+            resource_id=entry.resource_id,
+            details=entry.details,
+        )
+        db.add(log)
+        await db.flush()
+
+    return changes
