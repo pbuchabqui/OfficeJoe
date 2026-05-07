@@ -38,6 +38,8 @@ async def get_current_user(
         )
     try:
         payload = decode_token(credentials.credentials)
+        if payload.get("type") != "access":
+            raise JWTError("Apenas access tokens são aceitos neste endpoint.")
         user_id: str = payload.get("sub", "")
         if not user_id:
             raise JWTError("Subject vazio")

@@ -96,13 +96,13 @@ def run_embedding_pipeline(self, document_id: str) -> dict:
                 embedding_id = str(uuid.uuid4())
 
                 if embedding:
-                    # Insere com vetor
+                    # Usa CAST explícito para evitar conflito com o bind marker `:embedding`
                     session.execute(
                         text("""
                             INSERT INTO page_embeddings
                                 (id, page_id, document_id, case_id, chunk_index, chunk_text, embedding, model_name)
                             VALUES
-                                (:id, :page_id, :document_id, :case_id, :chunk_index, :chunk_text, :embedding::vector, :model_name)
+                                (:id, :page_id, :document_id, :case_id, :chunk_index, :chunk_text, CAST(:embedding AS vector), :model_name)
                             ON CONFLICT DO NOTHING
                         """),
                         {

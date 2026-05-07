@@ -141,6 +141,13 @@ async def list_pages(
     current_user=Depends(require_permission("document:read")),
     db: AsyncSession = Depends(get_db),
 ) -> List[PageResponse]:
+    # Valida que o documento pertence ao processo antes de retornar as páginas
+    doc_result = await db.execute(
+        select(Document).where(Document.id == document_id, Document.case_id == case_id)
+    )
+    if not doc_result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
     result = await db.execute(
         select(Page)
         .where(Page.document_id == document_id)
