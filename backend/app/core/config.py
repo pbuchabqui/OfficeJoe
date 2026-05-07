@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     OCR_DPI: int = 300
     OCR_MAX_PAGES_PER_TASK: int = 50
     OCR_CONFIDENCE_THRESHOLD: float = 0.6
+    OCR_LOW_CONFIDENCE_THRESHOLD: float = 0.75
 
     # ── IA ───────────────────────────────────────────────────────────────
     AI_PROVIDER: Literal["anthropic", "openai", "local"] = "anthropic"

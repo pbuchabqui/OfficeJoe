@@ -12,11 +12,14 @@ class DocumentResponse(BaseModel):
     sha256_hash: str
     file_size_bytes: int
     total_pages: Optional[int]
+    pdf_is_valid: Optional[bool]
+    has_native_text: Optional[bool]
     status: str
     ocr_engine_used: Optional[str]
     ocr_avg_confidence: Optional[str]
     error_message: Optional[str]
     is_original_preserved: bool
+    processing_job_id: Optional[str] = None
     created_at: str
 
     model_config = {"from_attributes": True}

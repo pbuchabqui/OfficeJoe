@@ -22,4 +22,4 @@ services:
       celery -A app.tasks.celery_app worker
       --loglevel=debug
       --concurrency=1
-      --queues=ocr,extraction,embeddings,default
+      --queues=processing,default

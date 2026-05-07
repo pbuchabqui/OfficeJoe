@@ -1,23 +1,26 @@
 """
 Serviço de gerenciamento de documentos.
-Responsável pelo upload seguro, cálculo de hash, persistência e enfileiramento OCR.
+Responsável pelo upload seguro, cálculo de hash e persistência.
 """
 from __future__ import annotations
 
-import io
 import logging
 import uuid
+from pathlib import Path
 from typing import Optional
 
 from fastapi import HTTPException, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.audit import AuditAction, log_audit
+from app.core.audit import AuditAction, AuditEntry, log_audit
 from app.core.config import get_settings
 from app.core.hashing import compute_sha256_stream, verify_integrity
+from app.db.models.audit_log import AuditLog
 from app.db.models.document import Document, DocumentCategory, DocumentStatus
 from app.db.models.case import Case
+from app.db.models.processing_job import ProcessingJob, ProcessingJobStatus, ProcessingJobType
+from app.services.pdf_metadata_service import extract_pdf_metadata
 from app.services.storage_service import get_storage_service
 
 logger = logging.getLogger("officejoe.document_service")
@@ -46,13 +49,25 @@ class DocumentService:
         return case
 
     async def _validate_upload(self, file: UploadFile) -> None:
-        if file.content_type not in ["application/pdf", "application/octet-stream"]:
-            ext = (file.filename or "").rsplit(".", 1)[-1].lower()
-            if ext not in settings.ALLOWED_UPLOAD_EXTENSIONS:
-                raise HTTPException(
-                    status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                    detail=f"Tipo de arquivo não permitido. Apenas: {settings.ALLOWED_UPLOAD_EXTENSIONS}",
-                )
+        ext = Path(file.filename or "").suffix.lower().lstrip(".")
+        if ext not in settings.ALLOWED_UPLOAD_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail=f"Extensão não permitida. Apenas: {settings.ALLOWED_UPLOAD_EXTENSIONS}",
+            )
+        if file.content_type != "application/pdf":
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail="MIME type não permitido. Apenas application/pdf.",
+            )
+
+    def _get_upload_size(self, file: UploadFile) -> int:
+        stream = file.file
+        pos = stream.tell()
+        stream.seek(0, 2)
+        size = stream.tell()
+        stream.seek(pos)
+        return size
 
     async def upload_document(
         self,
@@ -68,20 +83,17 @@ class DocumentService:
         """
         Fluxo completo de upload:
         1. Valida tipo/tamanho
-        2. Lê arquivo para memória (streaming seguro)
-        3. Calcula SHA-256
+        2. Calcula tamanho e SHA-256 por stream
+        3. Extrai metadados iniciais sem alterar o original
         4. Persiste documento no banco (status=UPLOADED)
         5. Faz upload para MinIO
-        6. Atualiza status para QUEUED_OCR
-        7. Registra auditoria
-        8. Enfileira tarefa OCR
+        6. Registra evento de cadeia de custódia
         """
         await self._validate_upload(file)
         await self._validate_case_exists(case_id)
 
-        # Lê o arquivo em memória (limitado pelo gateway/nginx em produção)
-        content = await file.read()
-        file_size = len(content)
+        stream = file.file
+        file_size = self._get_upload_size(file)
 
         if file_size > settings.max_upload_bytes:
             raise HTTPException(
@@ -95,10 +107,9 @@ class DocumentService:
                 detail="Arquivo vazio não é permitido.",
             )
 
-        # Calcula hash SHA-256
-        stream = io.BytesIO(content)
-        sha256 = compute_sha256_stream(stream)
         stream.seek(0)
+        sha256 = compute_sha256_stream(stream)
+        metadata = extract_pdf_metadata(stream, file_size)
 
         document_id = str(uuid.uuid4())
         original_filename = file.filename or "documento.pdf"
@@ -115,6 +126,9 @@ class DocumentService:
             sha256_hash=sha256,
             file_size_bytes=file_size,
             mime_type=file.content_type or "application/pdf",
+            total_pages=metadata.total_pages,
+            pdf_is_valid=metadata.pdf_is_valid,
+            has_native_text=metadata.has_native_text,
             storage_bucket=settings.MINIO_BUCKET_DOCUMENTS,
             storage_key=storage_key,
             status=DocumentStatus.UPLOADED.value,
@@ -124,8 +138,9 @@ class DocumentService:
         self._db.add(doc)
         await self._db.flush()  # Persiste sem commit para obter o ID
 
-        # Upload para MinIO (stream já na posição 0)
+        # Upload para MinIO sem modificar o arquivo original.
         try:
+            stream.seek(0)
             self._storage.upload_document(
                 file_stream=stream,
                 object_key=storage_key,
@@ -142,14 +157,7 @@ class DocumentService:
                 detail="Falha ao armazenar o documento. Tente novamente.",
             )
 
-        # Verifica integridade após upload
-        await self._verify_stored_integrity(doc, content)
-
-        doc.status = DocumentStatus.QUEUED_OCR.value
-        await self._db.flush()
-
-        # Auditoria
-        log_audit(
+        entry = log_audit(
             action=AuditAction.DOCUMENT_UPLOAD,
             user_id=uploaded_by_id,
             user_email=user_email,
@@ -162,11 +170,21 @@ class DocumentService:
                 "sha256": sha256,
                 "size_bytes": file_size,
                 "category": category,
+                "storage_bucket": settings.MINIO_BUCKET_DOCUMENTS,
+                "storage_key": storage_key,
+                "pdf_is_valid": metadata.pdf_is_valid,
+                "total_pages": metadata.total_pages,
+                "has_native_text": metadata.has_native_text,
+                "chain_of_custody": "original_received_hashed_stored",
             },
         )
-
-        # Enfileira OCR via Celery (import tardio para evitar circular)
-        self._enqueue_ocr(document_id)
+        await self._persist_custody_event(entry, case_id)
+        processing_job = await self._enqueue_page_registration_job(
+            document_id=document_id,
+            case_id=case_id,
+            created_by_id=uploaded_by_id,
+        )
+        setattr(doc, "processing_job_id", processing_job.id)
 
         logger.info(
             "Documento criado: id=%s case=%s sha256=%s...",
@@ -174,35 +192,52 @@ class DocumentService:
         )
         return doc
 
-    async def _verify_stored_integrity(self, doc: Document, original_content: bytes) -> None:
-        """Verifica que o hash do conteúdo confere com o hash armazenado."""
-        if not verify_integrity(original_content, doc.sha256_hash):
-            doc.status = DocumentStatus.ERROR.value
-            doc.error_message = "Falha de integridade: hash SHA-256 não confere."
-            await self._db.flush()
-            log_audit(
-                action=AuditAction.DOCUMENT_INTEGRITY_FAIL,
-                resource_type="document",
-                resource_id=doc.id,
-                details={"sha256": doc.sha256_hash},
-                success=False,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Falha de integridade no documento. Upload cancelado.",
-            )
+    async def _persist_custody_event(self, entry: AuditEntry, case_id: str) -> None:
+        log = AuditLog(
+            id=entry.id,
+            timestamp=entry.timestamp,
+            action=entry.action.value,
+            success=entry.success,
+            user_id=entry.user_id,
+            user_email=entry.user_email,
+            ip_address=entry.ip_address,
+            resource_type=entry.resource_type,
+            resource_id=entry.resource_id,
+            case_id=case_id,
+            details=entry.details,
+        )
+        self._db.add(log)
+        await self._db.flush()
 
-    def _enqueue_ocr(self, document_id: str) -> None:
+    async def _enqueue_page_registration_job(
+        self,
+        document_id: str,
+        case_id: str,
+        created_by_id: Optional[str],
+    ) -> ProcessingJob:
+        job = ProcessingJob(
+            id=str(uuid.uuid4()),
+            document_id=document_id,
+            case_id=case_id,
+            job_type=ProcessingJobType.FILE_PAGE_REGISTRATION.value,
+            status=ProcessingJobStatus.QUEUED.value,
+            created_by_id=created_by_id,
+        )
+        self._db.add(job)
+        await self._db.flush()
+        await self._db.commit()
+
         try:
-            from app.tasks.ocr_tasks import run_ocr_pipeline
-            task = run_ocr_pipeline.apply_async(
-                args=[document_id],
-                queue="ocr",
-                countdown=2,
-            )
-            logger.info("Tarefa OCR enfileirada: doc=%s task=%s", document_id, task.id)
+            from app.tasks.processing_tasks import create_file_pages_job
+            task = create_file_pages_job.apply_async(args=[job.id], queue="processing")
+            job.celery_task_id = task.id
+            await self._db.commit()
         except Exception as exc:
-            logger.warning("Não foi possível enfileirar OCR: %s", exc)
+            logger.warning("Não foi possível enfileirar job básico: job=%s erro=%s", job.id, exc)
+            job.status = ProcessingJobStatus.FAILED.value
+            job.error_message = "Falha ao enfileirar task Celery."
+            await self._db.commit()
+        return job
 
     async def check_integrity(
         self,

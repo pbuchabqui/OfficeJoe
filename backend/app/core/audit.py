@@ -41,6 +41,8 @@ class AuditAction(str, Enum):
     AI_QUERY = "ai.query"
     AI_RESPONSE = "ai.response"
     AI_REVIEW = "ai.human_review"
+    DOCUMENT_CLASSIFICATION_APPROVED = "document.classification_approved"
+    DOCUMENT_CLASSIFICATION_CORRECTED = "document.classification_corrected"
 
     # Processos / Quesitos
     CASE_CREATED = "case.created"

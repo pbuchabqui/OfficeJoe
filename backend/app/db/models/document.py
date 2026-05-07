@@ -61,6 +61,8 @@ class Document(Base, UUIDPrimaryKey, TimestampMixin):
     file_size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mime_type: Mapped[str] = mapped_column(String(100), nullable=False, default="application/pdf")
     total_pages: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    pdf_is_valid: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    has_native_text: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
 
     # Localização no storage (S3/MinIO)
     storage_bucket: Mapped[str] = mapped_column(String(255), nullable=False)
