@@ -1,9 +1,11 @@
 """Service for evidence management."""
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import persist_audit
 from app.db.models.case import Case
 from app.db.models.document import Document
 from app.db.models.evidence_item import EvidenceItem
@@ -79,3 +81,44 @@ async def list_evidence_by_case(
     )
 
     return items.all(), total or 0
+
+
+async def validate_evidence(
+    db: AsyncSession,
+    evidence_id: str,
+    user_id: str,
+) -> EvidenceItem:
+    """Validate an evidence item."""
+    evidence = await db.get(EvidenceItem, evidence_id)
+    if not evidence:
+        raise ValueError(f"Evidence {evidence_id} not found")
+
+    evidence.validation_status = "validated"
+    evidence.validated = True
+    evidence.validated_by = user_id
+    evidence.validated_at = datetime.now(timezone.utc)
+    evidence.rejection_reason = None
+
+    await db.flush()
+    return evidence
+
+
+async def reject_evidence(
+    db: AsyncSession,
+    evidence_id: str,
+    user_id: str,
+    rejection_reason: str,
+) -> EvidenceItem:
+    """Reject an evidence item."""
+    evidence = await db.get(EvidenceItem, evidence_id)
+    if not evidence:
+        raise ValueError(f"Evidence {evidence_id} not found")
+
+    evidence.validation_status = "rejected"
+    evidence.validated = False
+    evidence.validated_by = user_id
+    evidence.validated_at = datetime.now(timezone.utc)
+    evidence.rejection_reason = rejection_reason
+
+    await db.flush()
+    return evidence

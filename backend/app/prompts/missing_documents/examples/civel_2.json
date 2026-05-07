@@ -1,0 +1,266 @@
+{
+  "contexto_caso": {
+    "titulo": "Apuração de Haveres em Dissolução de Sociedade",
+    "tipo_processo": "civel",
+    "descricao": "Sócio minoritário (30%) retirou-se de sociedade empresarial de 15 anos de existência. Sócio remanescente (70%) alega que valor de saída deve ser baseado em avaliação patrimonial simples. Sócio minoritário contesta alegando manipulação contábil de resultados e pede apuração de haveres com inclusão de ativos ocultos e análise de goodwill.",
+    "documentos_fornecidos": [
+      "Contrato Social Original",
+      "Últimas 2 demonstrações contábeis (2022 e 2023)",
+      "Comunicação de saída do sócio minoritário",
+      "Avaliação patrimonial realizada pelo contador da empresa"
+    ],
+    "periodo_analise": {
+      "data_inicio": "2009-01-15",
+      "data_fim": "2024-05-07",
+      "tempo_existencia_anos": 15,
+      "ano_saida_socio": 2024
+    },
+    "questoes_principais": [
+      "Adequação de metodologia de apuração de haveres",
+      "Análise de patrimônio intangível (goodwill, marcas, carteira cliente)",
+      "Avaliação de consistência das demonstrações contábeis",
+      "Identificação de ativos ocultos ou não contabilizados",
+      "Cálculo do valor justo de saída do sócio",
+      "Análise de lucros retidos não distribuídos"
+    ]
+  },
+  "sugestoes": {
+    "caso_id": "CASE-2024-004",
+    "tipo_processo": "civel",
+    "data_analise": "2024-05-07T14:30:00Z",
+    "sugestoes": [
+      {
+        "id": 1,
+        "documento_tipo": "Série Completa de Demonstrações Contábeis (Balanço Patrimonial, DRE, DLPA) - Últimos 5 Anos",
+        "descricao": "Cópias de todas as demonstrações contábeis anuais dos últimos 5 anos (2019-2023), incluindo Balanço Patrimonial, Demonstração de Resultado do Exercício, Demonstração de Lucros ou Prejuízos Acumulados, com notas explicativas completas.",
+        "prioridade": "crítica",
+        "caso_uso": "Análise de tendência de resultados e patrimônio, identificação de padrões de lucratilidade, comprovação de lucros retidos não distribuídos, análise de consistência contábil ao longo do tempo.",
+        "criterios_aceitacao": [
+          "Demonstrações contábeis de cada ano fiscal",
+          "Assinadas por contador e sócio-gerente",
+          "Com CNPJ e identificação da empresa",
+          "Período: 2019 a 2023 (últimos 5 anos completos)",
+          "Incluindo todas as notas explicativas"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Série histórica de demonstrações é fundamental para análise de tendência patrimonial e de resultados.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Sem série histórica, análise de crescimento e desempenho fica comprometida.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Demonstrações auditadas por auditoria independente",
+            "Demonstrações fiscais arquivadas na Prefeitura",
+            "Registros contábeis mensais compilados"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2019-01-01",
+          "data_fim": "2023-12-31",
+          "descricao_periodo": "Últimos 5 anos fiscais completos"
+        }
+      },
+      {
+        "id": 2,
+        "documento_tipo": "Livro Diário e Livro Razão (Últimos 3 Anos de Registro Detalhado)",
+        "descricao": "Cópias dos livros diário e razão (ou equivalente em sistema de escrituração digital) mostrando registro detalhado de todas as operações contábeis realizadas nos últimos 3 anos, para validar se registros são consistentes e se não há operações não contabilizadas.",
+        "prioridade": "crítica",
+        "caso_uso": "Validação de consistência contábil, detecção de operações não contabilizadas ou fraudulentas, análise de apropriação de lucros, verificação de transações entre sócios.",
+        "criterios_aceitacao": [
+          "Livro diário e razão completos",
+          "Período mínimo 3 anos (2021-2023)",
+          "Com números de documento originário",
+          "Assinado digitalmente ou autenticado",
+          "Formato: impresso, digital SPED ou equivalente"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Livros contábeis são registro primário que respalda as demonstrações.",
+          "nivel": "critico"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Análise de fraude/manipulação contábil depende de acesso aos livros.",
+          "risco_conclusao": "alto_risco"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Relatório de auditoria comentando registros",
+            "Extrato de sistema contábil certificado",
+            "Análise de transferência bancária correlacionada"
+          ]
+        },
+        "periodo_temporal": {
+          "data_inicio": "2021-01-01",
+          "data_fim": "2023-12-31",
+          "descricao_periodo": "Últimos 3 anos de registros detalhados"
+        }
+      },
+      {
+        "id": 3,
+        "documento_tipo": "Relatório de Auditoria Independente ou Revisão de Contas (se existente)",
+        "descricao": "Se empresa realizou auditoria independente ou revisão de contas, cópia do relatório final incluindo parecer de auditor e comentários sobre possíveis inconsistências ou questões identificadas.",
+        "prioridade": "alta",
+        "caso_uso": "Validação de integridade das demonstrações contábeis por terceiro independente, identificação de desvios detectados por auditor, comprovação de conformidade com normas contábeis.",
+        "criterios_aceitacao": [
+          "Relatório de auditoria ou revisão completo",
+          "Assinado por auditor independente registrado em CRC",
+          "Com parecer final e comentários",
+          "Período de auditoria claramente indicado",
+          "Incluindo notas sobre questionamentos ou ajustes"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Auditoria independente adiciona credibilidade às demonstrações.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Fortalece análise de confiabilidade contábil.",
+          "risco_conclusao": "risco_baixo"
+        },
+        "reversibilidade": {
+          "eh_revisivel": true,
+          "alternativas": [
+            "Relatório de auditoria fiscal (IRPJ)",
+            "Parecer de contador qualificado sobre contas",
+            "Análise comparativa com padrões da indústria"
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "documento_tipo": "Análise de Ativos Intangíveis e Goodwill",
+        "descricao": "Documentação que identifica e quantifica ativos intangíveis da empresa (marca, carteira de clientes, softwares, processos patenteados, reputação), incluindo metodologia de avaliação utilizada.",
+        "prioridade": "alta",
+        "caso_uso": "Inclusão de patrimônio intangível na apuração de haveres, análise de valor da empresa além do patrimônio físico, validação de crescimento de valor ao longo do tempo.",
+        "criterios_aceitacao": [
+          "Análise formal de ativos intangíveis",
+          "Metodologia de avaliação clara (market approach, income approach, cost approach)",
+          "Quantificação de valor em R$ de cada ativo intangível",
+          "Suportes de informação utilizados",
+          "Assinado por avaliador qualificado (ABNT ou equivalente)"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Ativos intangíveis podem representar valor significativo não refletido em balanço.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Pode alterar materialmente o valor de saída do sócio se incluído.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": false,
+          "alternativas": []
+        }
+      },
+      {
+        "id": 5,
+        "documento_tipo": "Relatório de Lucros Retidos e Distribuição de Dividendos",
+        "descricao": "Documento que compila lucros acumulados não distribuídos e análise de política de distribuição de dividendos, mostrando quando lucros foram gerados vs. quando foram distribuídos.",
+        "prioridade": "alta",
+        "caso_uso": "Comprovação de retenção indevida de lucros que deveriam ser compartilhados, análise de política de dividendos, cálculo de haveres incluindo lucros retidos.",
+        "criterios_aceitacao": [
+          "Análise detalhada de lucros acumulados",
+          "Data de geração vs. data de distribuição",
+          "Justificativa para retenção (se houver)",
+          "Demonstração de como lucros foram utilizados",
+          "Assinado por responsável contábil"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Lucros retidos são ativos que devem ser considerados na apuração de haveres.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Pode alterar significativamente valor justo a ser pago ao sócio.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Atas de assembleia de sócios mostrando deliberações",
+            "Extratos de movimentação bancária de dividendos",
+            "Análise de balanço patrimonial: lucros acumulados"
+          ]
+        }
+      },
+      {
+        "id": 6,
+        "documento_tipo": "Detalhamento de Contas Patrimoniais (Ativo Imobilizado, Estoques, Contas a Receber)",
+        "descricao": "Documentação que lista e quantifica ativos principais da empresa: imóveis (com escritura e avaliação), máquinas/equipamentos (com depreciação), estoques (com localização e condição), contas a receber (com análise de cobrança).",
+        "prioridade": "alta",
+        "caso_uso": "Validação de valores de ativos em balanço, identificação de ativos obsoletos ou de difícil realização, análise de adequação de provisão para devedores duvidosos.",
+        "criterios_aceitacao": [
+          "Listagem detalhada de ativos imobilizados",
+          "Com descrição, valor, data de aquisição, depreciação acumulada",
+          "Inventário de estoques (quantidade e valor)",
+          "Análise de contas a receber por idade",
+          "Avaliação de ativos imobiliários com valor de mercado"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Validação de ativos fundamenta análise de patrimônio real vs. contábil.",
+          "nivel": "alto"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta análise de valor realizável do patrimônio.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Laudos de avaliação de ativos específicos",
+            "Documentação de alienações/disposições",
+            "Fotos e descrição de ativos principais"
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "documento_tipo": "Análise de Passivos (Débitos, Provisões, Contingências)",
+        "descricao": "Documentação detalhada de todos os passivos da empresa: débitos (fornecedores, empréstimos), provisões (trabalhista, fiscal), contingências legais (processos em andamento), para validar se todos estão refletidos em balanço.",
+        "prioridade": "media",
+        "caso_uso": "Validação de patrimônio líquido (ativo menos passivo), identificação de passivos ocultos, análise de adequação de provisões contábeis.",
+        "criterios_aceitacao": [
+          "Relação completa de débitos com data de vencimento",
+          "Análise de contingências legais (processos)",
+          "Provisões para obrigações trabalhista, fiscal, ambiental",
+          "Documentação de empréstimos e financiamentos",
+          "Validação de saldo com balanço patrimonial"
+        ],
+        "impacto_tecnico": {
+          "descricao": "Passivos ocultos ou sub-provisionados reduzem patrimônio líquido real.",
+          "nivel": "medio"
+        },
+        "impacto_conclusivo": {
+          "descricao": "Afeta cálculo de patrimônio líquido.",
+          "risco_conclusao": "risco_moderado"
+        },
+        "reversibilidade": {
+          "eh_reversivel": true,
+          "alternativas": [
+            "Relatório de auditoria comentando passivos",
+            "Análise de balancete de verificação",
+            "Confirmação direta com credores"
+          ]
+        }
+      }
+    ],
+    "resumo_executivo": {
+      "total_sugestoes": 7,
+      "sugestoes_criticas": 2,
+      "sugestoes_altas": 4,
+      "analise_lacunas": "O caso apresenta lacunas críticas que impossibilitam análise técnica adequada de apuração de haveres. Faltam série histórica de demonstrações contábeis (imprescindível para análise de tendência), livros contábeis para validação de integridade registros, análise de ativos intangíveis (potencial goodwill não considerado), e documentação de lucros retidos. Especificamente, avaliação patrimonial realizada pelo contador da empresa pode ser parcial se não considerar intangíveis e se não for validada por terceiro independente.",
+      "recomendacoes_gerais": [
+        "Requisitar imediatamente série completa de demonstrações contábeis dos últimos 5 anos (crítico)",
+        "Obter livro diário e razão dos últimos 3 anos para validar integridade contábil",
+        "Se não existir auditoria independente, solicitar revisão por auditor independente",
+        "Realizar análise formal de ativos intangíveis (marca, carteira cliente, goodwill)",
+        "Requerer relatório de lucros retidos e política de distribuição de dividendos",
+        "Fazer detalhamento e validação de ativos e passivos principais",
+        "Questionar adequação da avaliação patrimonial se realizada unilateralmente"
+      ],
+      "observacoes": "Apuração de haveres em dissolução de sociedade é operação complexa que requer análise integrada contábil, financeira e de valor. Recomenda-se envolvimento de especialista em valuation (avaliação de empresas) paralelamente à análise contábil-forense. Potencial manipulação contábil ou retenção indevida de lucros pode prejudicar significativamente valor de saída do sócio minoritário."
+    }
+  }
+}

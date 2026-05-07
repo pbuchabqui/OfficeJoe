@@ -1,0 +1,182 @@
+{
+  "example": 1,
+  "scenario": "Accounting - Revenue Recognition and Sales Verification",
+  "question_id": "q-001-contabil",
+  "question_text": "Qual foi o montante total de vendas realizadas pela empresa no período de janeiro a junho de 2023, conforme documentado nos registros contábeis?",
+  "question_theme": "contábil",
+  "question_type": "técnico",
+  "analysis_timestamp": "2024-05-07T10:30:00Z",
+  "direct_findings": {
+    "findings": [
+      {
+        "finding": "De acordo com o Livro Razão da Conta 4.1.1.01 (Vendas de Produtos), a empresa registrou movimentações totalizando R$ 2.845.000,00 no período de janeiro a junho de 2023",
+        "evidence_reference": "Livro Razão, Conta 4.1.1.01, páginas 15-18",
+        "document_type": "Livro Razão (Accounting Ledger)",
+        "specificity": "Janeiro: R$ 420.000 | Fevereiro: R$ 385.000 | Março: R$ 510.000 | Abril: R$ 445.000 | Maio: R$ 520.000 | Junho: R$ 565.000"
+      },
+      {
+        "finding": "O Diário de Vendas apresenta registros diários consistentes com os lançamentos no Livro Razão, com documentos de suporte (notas fiscais) para cada transação",
+        "evidence_reference": "Diário de Vendas, Junho de 2023, amostras verificadas",
+        "document_type": "Diário (Sales Journal)",
+        "specificity": "Verificadas 15 transações aleatórias com notas fiscais correspondentes, 100% de conformidade"
+      },
+      {
+        "finding": "As contas a receber apresentam saldo de R$ 1.250.000,00 em 30 de junho de 2023, consistente com prazos médios de 45 dias para recebimento",
+        "evidence_reference": "Balancete de Verificação, 30 de junho de 2023, Conta 1.1.1.02",
+        "document_type": "Relatório de Contas a Receber",
+        "specificity": "Período médio de recebimento: 42 dias (dentro do esperado)"
+      }
+    ],
+    "evidence_base": "Revisão completa da documentação contábil incluindo Livro Razão, Diário de Vendas, Notas Fiscais (amostra), Balancete de Verificação e Relatório de Contas a Receber"
+  },
+  "technical_analysis": {
+    "analysis_type": "account_analysis",
+    "methodology": "Verificação de registros contábeis através de análise de rastreabilidade das transações desde documentos de origem (notas fiscais) até lançamentos em livros contábeis e balancetes. Reconciliação com informações de contas a receber para validar créditos não recebidos.",
+    "key_calculations": [
+      {
+        "calculation": "Total de vendas registradas no período",
+        "formula": "Soma dos débitos da Conta 4.1.1.01 (Vendas) de janeiro a junho de 2023",
+        "result": "R$ 2.845.000,00",
+        "source": "Livro Razão, Conta 4.1.1.01"
+      },
+      {
+        "calculation": "Percentual de amostra verificada com documentação original",
+        "formula": "Transações verificadas / Total de transações = 15 / (aproximadamente 180 transações mensais) = amostra 2,5%",
+        "result": "100% de conformidade na amostra",
+        "source": "Diário de Vendas e Notas Fiscais correspondentes"
+      },
+      {
+        "calculation": "Consistência entre Livro Razão e Balancete",
+        "formula": "Saldo Livro Razão = Débitos (2.845.000) - Créditos (0) = 2.845.000",
+        "result": "Saldo no Balancete (Conta 4.1.1.01): 2.845.000",
+        "source": "Livro Razão e Balancete de Verificação, 30 de junho de 2023"
+      }
+    ],
+    "analysis_results": "A análise dos registros contábeis confirma que o total de vendas registradas no período de janeiro a junho de 2023 foi de R$ 2.845.000,00. Os lançamentos contábeis foram suportados por documentação de origem (notas fiscais), a amostra testada apresentou 100% de conformidade, e existe consistência entre o Livro Razão, Diário de Vendas e Balancete de Verificação. O período médio de recebimento de 42 dias é consistente com as condições comerciais normais da empresa."
+  },
+  "relevant_context": {
+    "applicable_standards": [
+      "IFRS 15 - Receitas de Contratos com Clientes (reconhecimento no ponto de transferência de controle)",
+      "Decreto-Lei 1.598/1977 - Legislação fiscal brasileira de reconhecimento de receitas",
+      "Normas Brasileiras de Contabilidade (NBC TG 30) - Receitas de Atividades Ordinárias"
+    ],
+    "relevant_rules": [
+      "Lei 5.764/1971 (Se aplicável - cooperativas)",
+      "Lei 11.941/2009 - Regras de reconhecimento de receita para fins fiscais"
+    ],
+    "contextual_factors": "A empresa opera no setor de distribuição com ciclo de vendas típico de 30-45 dias. Período analisado (janeiro-junho) é representativo da operação normal, sem eventos extraordinários mencionados nos registros contábeis."
+  },
+  "preliminary_conclusion": {
+    "answer": "O montante total de vendas realizadas e registradas pela empresa no período de janeiro a junho de 2023 foi de R$ 2.845.000,00, conforme documentado nos registros contábeis oficiais (Livro Razão, Conta 4.1.1.01).",
+    "reasoning": "Esta conclusão é baseada na verificação direta dos registros contábeis primários (Livro Razão), que constituem o documento de maior autoridade para fins contábeis. Os registros foram suportados por documentação de origem (notas fiscais) e reconciliados com o Balancete de Verificação. A amostra testada apresentou 100% de conformidade, aumentando a confiança no montante total registrado. O saldo de contas a receber (R$ 1.250.000,00) é consistente com o volume de vendas e prazos normais de recebimento.",
+    "evidence_support": [
+      {
+        "evidence_item": "Livro Razão - Conta 4.1.1.01 (Vendas de Produtos)",
+        "how_supports_conclusion": "Documento oficial de registro contábil que consolida todas as transações de vendas e seus valores"
+      },
+      {
+        "evidence_item": "Diário de Vendas com Notas Fiscais correspondentes",
+        "how_supports_conclusion": "Rastreabilidade desde documento fiscal de origem até registro contábil, validando a existência e valor das transações"
+      },
+      {
+        "evidence_item": "Balancete de Verificação (30 de junho de 2023)",
+        "how_supports_conclusion": "Demonstra que o saldo da Conta 4.1.1.01 está reconciliado e faz parte dos registros oficiais contábeis"
+      },
+      {
+        "evidence_item": "Relatório de Contas a Receber",
+        "how_supports_conclusion": "Comprova que as vendas registradas foram de clientes reais, com inadimplência mínima, validando a materialidade das transações"
+      }
+    ]
+  },
+  "confidence_level": 0.92,
+  "confidence_justification": {
+    "basis": "Alta confiança baseada na evidência documental robusta, documentação de origem completa, reconciliação entre diferentes livros contábeis, e amostra testada com 100% de conformidade.",
+    "limitations": [
+      "Amostra de 2,5% de transações testadas (limitação de tempo/recursos), embora com 100% de conformidade",
+      "Não foi possível verificar se houve ajustes extracontábeis (devoluções, descontos) após o período coberto pelos registros"
+    ],
+    "certainty_factors": [
+      "Documentação contábil completa e bem mantida",
+      "Rastreabilidade desde documentos fiscais até registros contábeis",
+      "Consistência entre múltiplos registros (Livro Razão, Diário, Balancete)",
+      "Contas a receber consistente com prazos normais de recebimento",
+      "Amostra testada com conformidade de 100%"
+    ]
+  },
+  "evidence_referenced": {
+    "total_evidence_items": 5,
+    "evidence_items": [
+      {
+        "evidence_id": "ev-001-ledger",
+        "document_type": "Livro Razão (General Ledger)",
+        "date_range": "Janeiro - Junho 2023",
+        "relevance": "primary",
+        "usage": "Fonte primária para valor total de vendas registrado"
+      },
+      {
+        "evidence_id": "ev-002-journal",
+        "document_type": "Diário de Vendas (Sales Journal)",
+        "date_range": "Janeiro - Junho 2023",
+        "relevance": "primary",
+        "usage": "Verificação de lançamentos detalhados e rastreamento a documentos de origem"
+      },
+      {
+        "evidence_id": "ev-003-invoices",
+        "document_type": "Notas Fiscais (Sales Invoices) - Amostra",
+        "date_range": "Janeiro - Junho 2023",
+        "relevance": "primary",
+        "usage": "Validação de existência e valores das transações de vendas"
+      },
+      {
+        "evidence_id": "ev-004-trial-balance",
+        "document_type": "Balancete de Verificação (Trial Balance)",
+        "date_range": "30 de junho de 2023",
+        "relevance": "supporting",
+        "usage": "Reconciliação e consolidação de saldos"
+      },
+      {
+        "evidence_id": "ev-005-ar-aging",
+        "document_type": "Relatório de Contas a Receber (Accounts Receivable Aging)",
+        "date_range": "30 de junho de 2023",
+        "relevance": "supporting",
+        "usage": "Validação de realidade das vendas e padrões de recebimento"
+      }
+    ],
+    "evidence_gaps": [
+      "Correspondência com clientes confirmando pedidos e recebimentos de mercadorias",
+      "Documentação de devoluções e abatimentos pós-venda (se houver)",
+      "Registros de despesas de frete e transporte associadas a cada venda"
+    ]
+  },
+  "limitations_and_caveats": {
+    "data_limitations": [
+      "Amostra de 2,5% de transações testadas para verificação de documentação original (limitação de tempo/custos de análise)",
+      "Período analisado (janeiro-junho) pode não ser representativo de períodos sazonais diferentes"
+    ],
+    "analytical_limitations": [
+      "Análise limitada aos registros contábeis; não pode confirmar se houve vendas não registradas (fraude potencial)",
+      "Não é possível determinar apropriação de receita conforme IFRS 15 sem análise dos contratos com clientes (escopo limitado aos registros contábeis)"
+    ],
+    "assumptions": [
+      {
+        "assumption": "Pressupõe-se que não ocorreram ajustes de receita após o período de junho de 2023 que afetariam o montante registrado (ajustes de devoluções, descontos retroativos, etc.)",
+        "justification": "Não foi fornecida documentação de ajustes pós-período no escopo da análise"
+      },
+      {
+        "assumption": "Pressupõe-se que todos os lançamentos contábeis foram feitos com base em documentação apropriada e que não houve lançamentos duplicados",
+        "justification": "Verificação de amostra de 100% de conformidade, porém não verificação de 100% das transações"
+      }
+    ],
+    "recommendations": [
+      "Para conclusão definitiva, expandir amostra de verificação de documentação original para 10-15% das transações",
+      "Revisar contratos de vendas e políticas de reconhecimento de receita para validar conformidade com IFRS 15",
+      "Verificar se houve devoluções e descontos pós-venda em períodos posteriores que afetem o montante de receita de 2023",
+      "Solicitar comunicação direta de clientes selecionados (circularização) para confirmar montantes e prazos de pagamento"
+    ]
+  },
+  "quality_indicators": {
+    "completeness": "complete",
+    "evidence_coverage": "comprehensive",
+    "technical_soundness": "sound"
+  }
+}

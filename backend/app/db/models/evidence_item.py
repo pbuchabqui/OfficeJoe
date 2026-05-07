@@ -1,7 +1,8 @@
 """Model for evidence items extracted from documents."""
 from __future__ import annotations
 
-from sqlalchemy import JSON, ForeignKey, String
+from datetime import datetime
+from sqlalchemy import JSON, ForeignKey, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin, UUIDPrimaryKey
@@ -22,9 +23,16 @@ class EvidenceItem(Base, UUIDPrimaryKey, TimestampMixin):
     notes: Mapped[str] = mapped_column(String(2000), default="")
     reliability_level: Mapped[int] = mapped_column(default=ReliabilityLevel.MEDIA)
     validated: Mapped[bool] = mapped_column(default=False)
+    validation_status: Mapped[str] = mapped_column(String(50), default="pending")
+    validated_by: Mapped[str | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    rejection_reason: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
     case: Mapped[Case] = relationship("Case", foreign_keys=[case_id])
     document: Mapped[Document] = relationship("Document", foreign_keys=[document_id])
+    validator: Mapped[User | None] = relationship("User", foreign_keys=[validated_by])
 
     def __repr__(self) -> str:
         return f"<EvidenceItem(id={self.id}, case_id={self.case_id}, type={self.evidence_type})>"
@@ -32,5 +40,6 @@ class EvidenceItem(Base, UUIDPrimaryKey, TimestampMixin):
 
 from app.db.models.case import Case
 from app.db.models.document import Document
+from app.db.models.user import User
 
 __all__ = ["EvidenceItem"]

@@ -14,7 +14,10 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import get_client_ip, get_current_user, persist_audit, require_permission
 from app.core.audit import AuditAction, log_audit
 from app.db.models.case import Case
+from app.db.models.evidence_item import EvidenceItem
 from app.db.models.quesito import Quesito, QuesitoAnswer, QuesitoStatus
+from app.db.models.question_evidence_link import QuestionEvidenceLink
+from app.db.models.question_draft_answer import QuestionDraftAnswer
 from app.db.models.user import User
 from app.db.session import get_db
 from app.schemas.quesito import (
@@ -24,7 +27,14 @@ from app.schemas.quesito import (
     QuesitoCreate,
     QuesitoResponse,
     QuesitoUpdate,
+    QuesitoImportRequest,
+    QuestionEvidenceLinkRequest,
+    QuestionEvidenceLinkResponse,
+    EvidenceReference,
+    QuestionDraftAnswerRequest,
+    QuestionDraftAnswerResponse,
 )
+from app.services.question_ai_provider import get_question_ai_provider
 
 router = APIRouter(prefix="/cases/{case_id}/quesitos", tags=["Quesitos"])
 
@@ -62,6 +72,8 @@ async def create_quesito(
         sequence_number=payload.sequence_number,
         origin=payload.origin,
         question_text=payload.question_text,
+        tema=payload.tema,
+        tipo=payload.tipo,
         status=QuesitoStatus.PENDENTE.value,
     )
     db.add(quesito)
@@ -239,3 +251,256 @@ async def generate_ai_draft(
     await persist_audit(entry, db, case_id=case_id)
 
     return QuesitoAnswerResponse.model_validate(answer)
+
+
+@router.patch("/{quesito_id}", response_model=QuesitoResponse)
+async def update_quesito(
+    case_id: str,
+    quesito_id: str,
+    payload: QuesitoUpdate,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> QuesitoResponse:
+    """Atualiza um quesito existente."""
+    result = await db.execute(
+        select(Quesito)
+        .where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+        .options(selectinload(Quesito.answers))
+    )
+    quesito = result.scalar_one_or_none()
+    if not quesito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    if payload.question_text is not None:
+        quesito.question_text = payload.question_text
+    if payload.status is not None:
+        quesito.status = payload.status
+    if payload.tema is not None:
+        quesito.tema = payload.tema
+    if payload.tipo is not None:
+        quesito.tipo = payload.tipo
+
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="quesito",
+        resource_id=quesito_id,
+        details={"case_id": case_id, "updated_fields": payload.model_dump(exclude_none=True)},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    return QuesitoResponse.model_validate(quesito)
+
+
+@router.post("/batch/import", response_model=List[QuesitoResponse], status_code=status.HTTP_201_CREATED)
+async def batch_import_quesitos(
+    case_id: str,
+    payload: QuesitoImportRequest,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> List[QuesitoResponse]:
+    """Importa múltiplos quesitos em lote via JSON."""
+    case_result = await db.execute(select(Case).where(Case.id == case_id))
+    if not case_result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Processo não encontrado.")
+
+    quesito_ids = []
+    for quesito_data in payload.quesitos:
+        quesito = Quesito(
+            id=str(uuid.uuid4()),
+            case_id=case_id,
+            sequence_number=quesito_data.sequence_number,
+            origin=quesito_data.origin,
+            question_text=quesito_data.question_text,
+            tema=quesito_data.tema,
+            tipo=quesito_data.tipo,
+            status=QuesitoStatus.PENDENTE.value,
+        )
+        db.add(quesito)
+        quesito_ids.append(quesito.id)
+
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="quesito",
+        resource_id=case_id,
+        details={"batch_import": True, "quantity": len(quesito_ids)},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    result = await db.execute(
+        select(Quesito)
+        .where(Quesito.id.in_(quesito_ids))
+        .options(selectinload(Quesito.answers))
+        .order_by(Quesito.sequence_number)
+    )
+    return [QuesitoResponse.model_validate(q) for q in result.scalars().all()]
+
+
+@router.post("/{quesito_id}/evidence", response_model=QuestionEvidenceLinkResponse, status_code=status.HTTP_201_CREATED)
+async def link_evidence_to_quesito(
+    case_id: str,
+    quesito_id: str,
+    payload: QuestionEvidenceLinkRequest,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> QuestionEvidenceLinkResponse:
+    """Vincula uma evidência a um quesito."""
+    quesito_result = await db.execute(
+        select(Quesito).where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+    )
+    quesito = quesito_result.scalar_one_or_none()
+    if not quesito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    evidence_result = await db.execute(
+        select(EvidenceItem).where(EvidenceItem.id == payload.evidence_item_id)
+    )
+    evidence = evidence_result.scalar_one_or_none()
+    if not evidence:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidência não encontrada.")
+
+    if evidence.case_id != case_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Evidência não pertence ao mesmo processo.",
+        )
+
+    link = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito_id,
+        evidence_item_id=payload.evidence_item_id,
+    )
+    db.add(link)
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="question_evidence_link",
+        resource_id=link.id,
+        details={"quesito_id": quesito_id, "evidence_item_id": payload.evidence_item_id},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    result = await db.execute(
+        select(QuestionEvidenceLink)
+        .where(QuestionEvidenceLink.id == link.id)
+        .options(selectinload(QuestionEvidenceLink.evidence_item))
+    )
+    return QuestionEvidenceLinkResponse.model_validate(result.scalar_one())
+
+
+@router.get("/{quesito_id}/evidence", response_model=List[EvidenceReference])
+async def list_quesito_evidence(
+    case_id: str,
+    quesito_id: str,
+    current_user=Depends(require_permission("quesito:read")),
+    db: AsyncSession = Depends(get_db),
+) -> List[EvidenceReference]:
+    """Lista evidências vinculadas a um quesito."""
+    quesito_result = await db.execute(
+        select(Quesito).where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+    )
+    if not quesito_result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    result = await db.execute(
+        select(EvidenceItem)
+        .join(QuestionEvidenceLink, EvidenceItem.id == QuestionEvidenceLink.evidence_item_id)
+        .where(QuestionEvidenceLink.quesito_id == quesito_id)
+        .order_by(EvidenceItem.created_at)
+    )
+    return [EvidenceReference.model_validate(e) for e in result.scalars().all()]
+
+
+@router.post("/{quesito_id}/generate-draft", response_model=QuestionDraftAnswerResponse, status_code=status.HTTP_201_CREATED)
+async def generate_draft_answer(
+    case_id: str,
+    quesito_id: str,
+    payload: QuestionDraftAnswerRequest,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> QuestionDraftAnswerResponse:
+    """Gera minuta de resposta a um quesito com IA mockada."""
+    quesito_result = await db.execute(
+        select(Quesito).where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+    )
+    quesito = quesito_result.scalar_one_or_none()
+    if not quesito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    # Busca evidências vinculadas
+    evidence_result = await db.execute(
+        select(EvidenceItem)
+        .join(QuestionEvidenceLink, EvidenceItem.id == QuestionEvidenceLink.evidence_item_id)
+        .where(QuestionEvidenceLink.quesito_id == quesito_id)
+        .order_by(EvidenceItem.created_at)
+    )
+    evidence_items = evidence_result.scalars().all()
+
+    if not evidence_items:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Evidências vinculadas são obrigatórias para gerar resposta preliminar.",
+        )
+
+    # Extrai textos das evidências
+    evidence_texts = [e.text_excerpt for e in evidence_items]
+    evidence_ids = [e.id for e in evidence_items]
+
+    # Gera resposta com IA mockada
+    ai_provider = get_question_ai_provider()
+    ai_result = ai_provider.generate_answer(
+        quesito_text=quesito.question_text,
+        quesito_tema=quesito.tema,
+        quesito_tipo=quesito.tipo,
+        evidence_texts=evidence_texts,
+    )
+
+    # Salva resposta preliminar
+    draft_answer = QuestionDraftAnswer(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito_id,
+        case_id=case_id,
+        draft_text=ai_result["draft_text"],
+        ai_model=ai_result["ai_model"],
+        confidence_score=ai_result["confidence_score"],
+        evidence_ids_used={"evidence_ids": evidence_ids, "count": len(evidence_ids)},
+        generated_by_id=current_user.id,
+        is_reviewed=False,
+    )
+    db.add(draft_answer)
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.AI_QUERY,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="question_draft_answer",
+        resource_id=draft_answer.id,
+        details={
+            "quesito_id": quesito_id,
+            "ai_model": ai_result["ai_model"],
+            "confidence_score": ai_result["confidence_score"],
+            "evidence_count": len(evidence_ids),
+        },
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    return QuestionDraftAnswerResponse.model_validate(draft_answer)

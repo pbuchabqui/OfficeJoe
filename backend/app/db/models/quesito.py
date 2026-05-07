@@ -44,6 +44,12 @@ class Quesito(Base, UUIDPrimaryKey, TimestampMixin):
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, default=QuesitoStatus.PENDENTE.value, index=True
     )
+    tema: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, index=True, comment="Tema/assunto do quesito"
+    )
+    tipo: Mapped[Optional[str]] = mapped_column(
+        String(50), nullable=True, index=True, comment="Tipo de quesito"
+    )
 
     # Texto do quesito
     question_text: Mapped[str] = mapped_column(Text, nullable=False)
@@ -53,6 +59,9 @@ class Quesito(Base, UUIDPrimaryKey, TimestampMixin):
     answers: Mapped[List["QuesitoAnswer"]] = relationship(
         "QuesitoAnswer", back_populates="quesito", cascade="all, delete-orphan",
         order_by="QuesitoAnswer.version",
+    )
+    evidence_links: Mapped[List["QuestionEvidenceLink"]] = relationship(  # noqa: F821
+        "QuestionEvidenceLink", back_populates="quesito", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

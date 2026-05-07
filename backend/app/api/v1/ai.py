@@ -22,8 +22,13 @@ from app.schemas.ai_output import (
     SemanticSearchResult,
 )
 from app.services.ai_service import get_ai_service
+from app.schemas.ai_document_suggestion import (
+    AIDocumentSuggestionRequest,
+    AIDocumentSuggestionResponse,
+)
+from app.services.ai_document_suggestion_service import get_document_suggestions
 
-router = APIRouter(prefix="/ai", tags=["IA / Busca Semântica"])
+router = APIRouter(prefix="/ai", tags=["IA"])
 
 
 @router.post("/search", response_model=List[SemanticSearchResult])
@@ -205,3 +210,26 @@ async def review_ai_output(
     )
 
     return AIOutputResponse.model_validate(output)
+
+
+@router.post(
+    "/document-suggestions",
+    response_model=AIDocumentSuggestionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Obter sugestões de documentos faltantes",
+)
+async def get_suggestions_endpoint(
+    payload: AIDocumentSuggestionRequest,
+    current_user=Depends(require_permission("ai:query")),
+    db: AsyncSession = Depends(get_db),
+) -> AIDocumentSuggestionResponse:
+    """
+    Obtém sugestões de IA para documentos que podem estar faltando.
+
+    A IA analisa o tipo de processo e sugere documentos relevantes.
+    """
+    try:
+        response = await get_document_suggestions(db, payload.case_id, payload.context)
+        return response
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

@@ -264,3 +264,182 @@ async def test_list_evidence_pagination(db_session: AsyncSession, sample_case):
     assert len(items) == 2
 
 
+# ── Validação de evidência ───────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_validate_evidence_success(db_session: AsyncSession):
+    """Validar evidência com sucesso."""
+    from app.db.models.user import User
+    from app.db.models.case import Case, CaseStatus, CaseType
+    from app.core.security import hash_password
+
+    validator = User(
+        id=str(uuid.uuid4()),
+        email="validator-v1@teste.com",
+        full_name="Validador",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role="perito",
+        is_active=True,
+    )
+    db_session.add(validator)
+    await db_session.flush()
+
+    case = Case(
+        id=str(uuid.uuid4()),
+        case_number=f"000{uuid.uuid4().hex[:4]}-56.2024.5.02.0001",
+        case_type=CaseType.TRABALHISTA.value,
+        title="Reclamação Trabalhista - Teste",
+        status=CaseStatus.PLANEJAMENTO.value,
+        responsible_user_id=validator.id,
+    )
+    db_session.add(case)
+    await db_session.flush()
+
+    doc = Document(
+        id=str(uuid.uuid4()),
+        case_id=case.id,
+        original_filename="test.pdf",
+        display_name="test.pdf",
+        category="outro",
+        sha256_hash="a" * 64,
+        file_size_bytes=1024,
+        mime_type="application/pdf",
+        storage_bucket="test-bucket",
+        storage_key="test-key",
+        status="uploaded",
+        is_original_preserved=True,
+    )
+    db_session.add(doc)
+    await db_session.flush()
+
+    page = Page(
+        id=str(uuid.uuid4()),
+        document_id=doc.id,
+        page_number=1,
+        raw_text="Teste",
+    )
+    db_session.add(page)
+    await db_session.flush()
+
+    evidence = EvidenceItem(
+        case_id=case.id,
+        document_id=doc.id,
+        page_number=1,
+        text_excerpt="Test evidence",
+        evidence_type="contrato",
+        reliability_level=3,
+        validation_status="pending",
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    from app.services.evidence_service import validate_evidence
+
+    validated = await validate_evidence(db_session, evidence.id, validator.id)
+
+    assert validated.validation_status == "validated"
+    assert validated.validated is True
+    assert validated.validated_by == validator.id
+    assert validated.validated_at is not None
+    assert validated.rejection_reason is None
+
+
+@pytest.mark.asyncio
+async def test_reject_evidence_success(db_session: AsyncSession):
+    """Rejeitar evidência com motivo."""
+    from app.db.models.user import User
+    from app.db.models.case import Case, CaseStatus, CaseType
+    from app.core.security import hash_password
+
+    validator = User(
+        id=str(uuid.uuid4()),
+        email="validator-v2@teste.com",
+        full_name="Validador",
+        hashed_password=hash_password("SenhaSegura123!"),
+        role="perito",
+        is_active=True,
+    )
+    db_session.add(validator)
+    await db_session.flush()
+
+    case = Case(
+        id=str(uuid.uuid4()),
+        case_number=f"000{uuid.uuid4().hex[:4]}-56.2024.5.02.0002",
+        case_type=CaseType.TRABALHISTA.value,
+        title="Reclamação Trabalhista - Teste",
+        status=CaseStatus.PLANEJAMENTO.value,
+        responsible_user_id=validator.id,
+    )
+    db_session.add(case)
+    await db_session.flush()
+
+    doc = Document(
+        id=str(uuid.uuid4()),
+        case_id=case.id,
+        original_filename="test.pdf",
+        display_name="test.pdf",
+        category="outro",
+        sha256_hash="a" * 64,
+        file_size_bytes=1024,
+        mime_type="application/pdf",
+        storage_bucket="test-bucket",
+        storage_key="test-key",
+        status="uploaded",
+        is_original_preserved=True,
+    )
+    db_session.add(doc)
+    await db_session.flush()
+
+    page = Page(
+        id=str(uuid.uuid4()),
+        document_id=doc.id,
+        page_number=1,
+        raw_text="Teste",
+    )
+    db_session.add(page)
+    await db_session.flush()
+
+    evidence = EvidenceItem(
+        case_id=case.id,
+        document_id=doc.id,
+        page_number=1,
+        text_excerpt="Test evidence",
+        evidence_type="contrato",
+        reliability_level=3,
+        validation_status="pending",
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    from app.services.evidence_service import reject_evidence
+
+    rejected = await reject_evidence(
+        db_session, evidence.id, validator.id, "Texto não é claro"
+    )
+
+    assert rejected.validation_status == "rejected"
+    assert rejected.validated is False
+    assert rejected.validated_by == validator.id
+    assert rejected.validated_at is not None
+    assert rejected.rejection_reason == "Texto não é claro"
+
+
+@pytest.mark.asyncio
+async def test_validate_evidence_not_found(db_session: AsyncSession):
+    """Erro ao validar evidência inexistente."""
+    from app.services.evidence_service import validate_evidence
+
+    with pytest.raises(ValueError, match="Evidence .* not found"):
+        await validate_evidence(db_session, "invalid-id", "invalid-user")
+
+
+@pytest.mark.asyncio
+async def test_reject_evidence_not_found(db_session: AsyncSession):
+    """Erro ao rejeitar evidência inexistente."""
+    from app.services.evidence_service import reject_evidence
+
+    with pytest.raises(ValueError, match="Evidence .* not found"):
+        await reject_evidence(db_session, "invalid-id", "invalid-user", "Motivo")
+
+

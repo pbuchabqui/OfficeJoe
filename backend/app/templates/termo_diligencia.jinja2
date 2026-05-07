@@ -1,0 +1,36 @@
+TERMO DE DILIGÊNCIA
+
+NÚMERO: {{ diligence.number }}
+DATA: {{ current_date }}
+
+DESTINATÁRIO: {{ diligence.recipient }}
+PRAZO DE ATENDIMENTO: {{ deadline_formatted }}
+
+=======================================================================
+
+OBSERVAÇÕES:
+{{ diligence.observations if diligence.observations else '(Nenhuma observação)' }}
+
+=======================================================================
+
+ITENS SOLICITADOS:
+
+{% for item in items %}
+{{ loop.index }}. {{ item.requested_document }}
+   Período: {{ item.period }}
+   Justificativa Técnica: {{ item.technical_justification }}
+   Status: {{ item.status }}
+
+{% endfor %}
+
+=======================================================================
+
+Processo: {{ case_number }}
+Assunto: {{ case_title }}
+
+Este documento solicita os documentos e informações listados acima, conforme
+necessário para continuação do processo de perícia contábil.
+
+Local e Data: ___________________________
+
+Assinado por: ___________________________
