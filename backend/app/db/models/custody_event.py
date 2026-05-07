@@ -30,15 +30,22 @@ class CustodyEventType(str, Enum):
     Tipos de evento possíveis na cadeia de custódia.
     Cada tipo representa uma ação auditável sobre o arquivo original.
     """
-    UPLOADED = "uploaded"                   # Arquivo recebido e armazenado
-    INTEGRITY_CHECK = "integrity_check"     # Verificação de hash SHA-256
-    INTEGRITY_FAIL = "integrity_fail"       # Hash não confere — alerta crítico
-    DOWNLOADED = "downloaded"               # Arquivo baixado por usuário
-    EXPORT_GENERATED = "export_generated"   # Exportação/cópia gerada
-    OCR_STARTED = "ocr_started"             # Pipeline OCR iniciado
-    OCR_COMPLETED = "ocr_completed"         # Pipeline OCR concluído
-    OCR_FAILED = "ocr_failed"               # Pipeline OCR falhou
-    DELETION_REQUESTED = "deletion_requested"  # Solicitação de remoção registrada
+    # Ciclo de vida fundamental (obrigatórios pelo prompt 9)
+    UPLOADED = "uploaded"                       # Arquivo recebido e armazenado
+    HASH_CALCULATED = "hash_calculated"         # SHA-256 calculado e registrado
+    VIEWED = "viewed"                           # Arquivo visualizado por usuário
+    DOWNLOADED = "downloaded"                   # Arquivo baixado por usuário
+    DERIVED_CREATED = "derived_created"         # Arquivo derivado criado (ex: página extraída)
+    REPROCESSED = "reprocessed"                 # Arquivo reprocessado (novo OCR, etc.)
+    INTEGRITY_CHECKED = "integrity_checked"     # Verificação de integridade bem-sucedida
+    INTEGRITY_FAIL = "integrity_fail"           # Hash não confere — alerta crítico
+
+    # Eventos adicionais do pipeline
+    EXPORT_GENERATED = "export_generated"       # Exportação/cópia gerada
+    OCR_STARTED = "ocr_started"                 # Pipeline OCR iniciado
+    OCR_COMPLETED = "ocr_completed"             # Pipeline OCR concluído
+    OCR_FAILED = "ocr_failed"                   # Pipeline OCR falhou
+    DELETION_REQUESTED = "deletion_requested"   # Solicitação de remoção registrada
 
 
 class CustodyEvent(Base, UUIDPrimaryKey):
