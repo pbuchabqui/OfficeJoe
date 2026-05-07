@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_permission
@@ -27,6 +28,7 @@ from app.services.report_service import (
     update_report,
     update_report_section,
 )
+from app.services.report_docx_export_service import generate_report_docx
 
 router = APIRouter(prefix="/reports", tags=["Laudos"])
 
@@ -90,6 +92,27 @@ async def read_report_endpoint(
             created_at=report.created_at,
             updated_at=report.updated_at,
             sections=[ReportSectionResponse.model_validate(section) for section in sections],
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+
+@router.get(
+    "/{report_id}/download-docx",
+    status_code=status.HTTP_200_OK,
+    summary="Baixar laudo em DOCX",
+)
+async def download_report_docx_endpoint(
+    report_id: str = Path(..., description="ID do laudo"),
+    current_user=Depends(require_permission("extraction:read")),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        docx_stream = await generate_report_docx(db, report_id)
+        return StreamingResponse(
+            iter([docx_stream.getvalue()]),
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename=laudo_{report_id}.docx"},
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

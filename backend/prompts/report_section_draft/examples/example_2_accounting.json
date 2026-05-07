@@ -1,0 +1,65 @@
+{
+  "input_summary": {
+    "section_title": "Conferência de Registros Contábeis",
+    "report_type": "contábil",
+    "context": "Seção destinada a resumir achados sobre lançamentos contábeis em razão de documentos extraídos.",
+    "evidence": [
+      {
+        "reference_id": "EV-CTB-010",
+        "description": "Razão contábil da conta de despesas administrativas, período 01/2024 a 03/2024.",
+        "validation_status": "validated"
+      },
+      {
+        "reference_id": "EV-NF-022",
+        "description": "Notas fiscais vinculadas a lançamentos da mesma conta.",
+        "validation_status": "pending"
+      }
+    ],
+    "technical_findings": [
+      "O razão contábil apresenta lançamentos mensais na conta analisada.",
+      "Parte dos documentos fiscais de suporte ainda está pendente de validação."
+    ]
+  },
+  "expected_output": {
+    "section_title": "Conferência de Registros Contábeis",
+    "draft_text": "Esta seção apresenta a conferência preliminar dos registros contábeis relacionados à conta de despesas administrativas no período de 01/2024 a 03/2024. A análise considerou o razão contábil identificado como EV-CTB-010 e as notas fiscais relacionadas identificadas como EV-NF-022.\n\nO razão contábil demonstra lançamentos mensais na conta examinada, permitindo identificar a sequência de registros e seus respectivos períodos. As notas fiscais relacionadas foram indicadas como documentação de suporte, porém permanecem com validação pendente.\n\nDessa forma, a minuta registra a existência de correspondência documental preliminar entre os lançamentos e os documentos fiscais apontados, mas a conclusão técnica deve permanecer condicionada à validação integral das notas fiscais e à conferência dos vínculos entre cada lançamento e seu documento de suporte.",
+    "evidence_references": [
+      {
+        "reference_id": "EV-CTB-010",
+        "description": "Razão contábil da conta de despesas administrativas.",
+        "validation_status": "validated",
+        "usage": "Usado como base principal dos lançamentos analisados."
+      },
+      {
+        "reference_id": "EV-NF-022",
+        "description": "Notas fiscais vinculadas aos lançamentos.",
+        "validation_status": "pending",
+        "usage": "Usadas como documentação de suporte pendente de validação."
+      }
+    ],
+    "technical_basis": {
+      "methodology": "Conferência documental entre razão contábil e documentos fiscais indicados como suporte.",
+      "findings": [
+        "Há lançamentos mensais no período analisado.",
+        "Há documentos fiscais apontados como suporte.",
+        "Parte da documentação de suporte ainda não está validada."
+      ],
+      "assumptions": []
+    },
+    "limitations": [
+      "As notas fiscais de suporte possuem validação pendente.",
+      "A correspondência individual entre cada lançamento e documento fiscal depende de conferência adicional."
+    ],
+    "confidence": {
+      "level": "medium",
+      "justification": "O razão contábil está validado, mas parte da documentação de suporte ainda depende de validação."
+    },
+    "requires_human_review": true,
+    "safety_flags": [
+      {
+        "type": "unvalidated_evidence",
+        "message": "A minuta utiliza documentação de suporte ainda pendente de validação."
+      }
+    ]
+  }
+}
