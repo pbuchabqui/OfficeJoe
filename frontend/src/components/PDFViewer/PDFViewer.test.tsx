@@ -11,7 +11,7 @@ vi.mock('pdfjs-dist', () => ({
   getDocument: vi.fn(() => ({
     promise: Promise.resolve({
       numPages: 5,
-      getPage: vi.fn((pageNum) =>
+      getPage: vi.fn((_pageNum) =>
         Promise.resolve({
           getViewport: () => ({ width: 595, height: 842 }),
           render: () => ({ promise: Promise.resolve() }),
@@ -158,12 +158,10 @@ describe('PDFViewer', () => {
   it('deve desabilitar navegação quando carregando', async () => {
     render(<PDFViewer url={testPdfUrl} />);
 
-    const btnProximo = screen.getByLabelText('Próxima página');
-    const btnAnterior = screen.getByLabelText('Página anterior');
-
     await waitFor(() => {
       // Quando está carregando, os botões podem estar desabilitados
       // Esse comportamento depende da implementação do hook
+      expect(screen.getByLabelText('Próxima página')).toBeInTheDocument();
     });
   });
 
