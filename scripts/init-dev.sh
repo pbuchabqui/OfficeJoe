@@ -23,6 +23,23 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
+# Verificar permissões do Docker
+if ! docker ps &> /dev/null; then
+    echo -e "${RED}✗ Sem permissão para acessar Docker${NC}"
+    echo ""
+    echo "Solução:"
+    echo "  1. Adicione seu usuário ao grupo docker:"
+    echo "     ${YELLOW}sudo usermod -aG docker \$USER${NC}"
+    echo "  2. Aplique novo grupo:"
+    echo "     ${YELLOW}newgrp docker${NC}"
+    echo "  3. Verifique:"
+    echo "     ${YELLOW}docker ps${NC}"
+    echo ""
+    echo "  OU use sudo para executar este script:"
+    echo "     ${YELLOW}sudo ./scripts/init-dev.sh${NC}"
+    exit 1
+fi
+
 # Detectar qual comando usar (novo: docker compose ou antigo: docker-compose)
 if docker compose version &> /dev/null; then
     DOCKER_COMPOSE="docker compose"

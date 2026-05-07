@@ -1,5 +1,58 @@
 # Docker Compose - Troubleshooting
 
+## Problema: "Permission denied" ao rodar Docker
+
+### Erro Completo
+```
+PermissionError(13, 'Permission denied')
+Error while fetching server API version: ('Connection aborted.', PermissionError(13, 'Permission denied'))
+```
+
+### Causa
+
+Seu usuário não tem permissão para acessar o socket do Docker.
+
+### Solução (Linux/Mac)
+
+```bash
+# Adicionar seu usuário ao grupo docker
+sudo usermod -aG docker $USER
+
+# Aplicar novo grupo (sem logout)
+newgrp docker
+
+# Verificar se funciona
+docker ps
+```
+
+Se `newgrp` não funcionar, faça logout e login novamente:
+```bash
+exit
+# Faça login novamente e tente
+docker ps
+```
+
+### Solução (Windows)
+
+1. Verificar se Docker Desktop está rodando
+2. Se usar WSL, reiniciar:
+   ```bash
+   wsl --shutdown
+   ```
+3. Abrir terminal como Administrador
+4. Tentar novamente
+
+### Solução Temporária
+
+Use `sudo` para contornar (não recomendado):
+```bash
+sudo docker compose up --build
+# ou
+sudo ./scripts/init-dev.sh
+```
+
+---
+
 ## Problema: "docker-compose: command not found"
 
 ### Causa

@@ -17,6 +17,20 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+REM Verificar permissoes do Docker
+docker ps >nul 2>&1
+if %errorlevel% neq 0 (
+    echo X Sem permissao para acessar Docker
+    echo.
+    echo Solucao:
+    echo   1. No Windows, abra Docker Desktop
+    echo   2. Verifique se Docker daemon esta rodando
+    echo   3. Se usar WSL, pode precisar reiniciar o WSL:
+    echo      wsl --shutdown
+    echo.
+    exit /b 1
+)
+
 REM Detectar qual comando usar (novo: docker compose ou antigo: docker-compose)
 set DOCKER_COMPOSE=
 docker compose version >nul 2>&1
