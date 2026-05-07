@@ -184,6 +184,9 @@ async def sample_case(db_session: AsyncSession, perito_user):
         case_type=CaseType.TRABALHISTA.value,
         title="Reclamação Trabalhista - Teste",
         status=CaseStatus.PLANEJAMENTO.value,
+        tribunal="TRT-2",
+        vara="1ª Vara do Trabalho de São Paulo",
+        court_district="São Paulo",
         responsible_user_id=perito_user.id,
     )
     db_session.add(case)
