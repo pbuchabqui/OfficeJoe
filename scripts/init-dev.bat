@@ -16,12 +16,24 @@ if %errorlevel% neq 0 (
     echo X Docker nao encontrado
     exit /b 1
 )
-docker-compose --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo X Docker Compose nao encontrado
-    exit /b 1
+
+REM Detectar qual comando usar (novo: docker compose ou antigo: docker-compose)
+set DOCKER_COMPOSE=
+docker compose version >nul 2>&1
+if %errorlevel% equ 0 (
+    set DOCKER_COMPOSE=docker compose
+) else (
+    docker-compose --version >nul 2>&1
+    if %errorlevel% equ 0 (
+        set DOCKER_COMPOSE=docker-compose
+    ) else (
+        echo X Docker Compose nao encontrado
+        echo Instale Docker Compose: https://docs.docker.com/compose/install/
+        exit /b 1
+    )
 )
-echo OK - Docker encontrado
+
+echo OK - Docker encontrado (usando: %DOCKER_COMPOSE%)
 echo.
 
 REM 2. Criar .env
@@ -36,7 +48,7 @@ echo.
 
 REM 3. Iniciar Docker
 echo [3/4] Iniciando servicos Docker...
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+%DOCKER_COMPOSE% -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 echo OK - Docker iniciado
 echo.
 

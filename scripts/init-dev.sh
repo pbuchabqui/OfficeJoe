@@ -16,17 +16,25 @@ echo -e "${GREEN}═════════════════════
 echo -e "${GREEN}  OfficeJoe - Development Setup${NC}"
 echo -e "${GREEN}═════════════════════════════════════════${NC}\n"
 
-# 1. Verificar Docker
+# 1. Verificar Docker e Docker Compose
 echo -e "${YELLOW}[1/5]${NC} Verificando Docker..."
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}✗ Docker não encontrado${NC}"
     exit 1
 fi
-if ! command -v docker-compose &> /dev/null; then
+
+# Detectar qual comando usar (novo: docker compose ou antigo: docker-compose)
+if docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
     echo -e "${RED}✗ Docker Compose não encontrado${NC}"
+    echo "Instale Docker Compose: https://docs.docker.com/compose/install/"
     exit 1
 fi
-echo -e "${GREEN}✓ Docker OK${NC}\n"
+
+echo -e "${GREEN}✓ Docker OK (usando: $DOCKER_COMPOSE)${NC}\n"
 
 # 2. Criar .env
 echo -e "${YELLOW}[2/5]${NC} Criando arquivo .env..."
@@ -39,7 +47,7 @@ fi
 
 # 3. Iniciar Docker
 echo -e "${YELLOW}[3/5]${NC} Iniciando serviços Docker..."
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+$DOCKER_COMPOSE -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 echo -e "${GREEN}✓ Docker iniciado${NC}\n"
 
 # 4. Aguardar backend estar pronto

@@ -17,7 +17,15 @@ cd OfficeJoe
 # 2. Configurar ambiente
 cp .env.example .env
 
-# 3. Rodar com Docker
+# 3. Rodar com Docker (escolha uma opção)
+
+# Opção A: Script automático (recomendado)
+./scripts/init-dev.sh    # Linux/Mac
+.\scripts\init-dev.bat   # Windows
+
+# Opção B: Manual
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ou (versão antiga)
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
