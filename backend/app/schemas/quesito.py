@@ -7,11 +7,29 @@ class QuesitoCreate(BaseModel):
     sequence_number: int
     origin: str = "juizo"
     question_text: str
+    tema: Optional[str] = None
+    tipo: Optional[str] = None
 
 
 class QuesitoUpdate(BaseModel):
     question_text: Optional[str] = None
     status: Optional[str] = None
+    tema: Optional[str] = None
+    tipo: Optional[str] = None
+
+
+class QuesitoImportItem(BaseModel):
+    """Schema para importação de quesitos em lote via JSON."""
+    sequence_number: int
+    origin: str = "juizo"
+    question_text: str
+    tema: Optional[str] = None
+    tipo: Optional[str] = None
+
+
+class QuesitoImportRequest(BaseModel):
+    """Request para batch import de quesitos."""
+    quesitos: List[QuesitoImportItem]
 
 
 class DocumentReference(BaseModel):
@@ -48,6 +66,8 @@ class QuesitoResponse(BaseModel):
     origin: str
     status: str
     question_text: str
+    tema: Optional[str] = None
+    tipo: Optional[str] = None
     answers: List[QuesitoAnswerResponse] = []
 
     model_config = {"from_attributes": True}

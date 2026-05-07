@@ -70,7 +70,7 @@ async def perito_user(db_session: AsyncSession):
     from app.db.models.user import User
     user = User(
         id=str(uuid.uuid4()),
-        email="perito@teste.com",
+        email=f"perito-{uuid.uuid4()}@teste.com",
         full_name="Perito Teste",
         hashed_password=hash_password("SenhaSegura123!"),
         role=Role.PERITO.value,
@@ -94,9 +94,10 @@ def perito_token(perito_user) -> str:
 @pytest_asyncio.fixture
 async def sample_case(db_session: AsyncSession, perito_user):
     from app.db.models.case import Case, CaseStatus, CaseType
+    case_num = f"{uuid.uuid4().hex[:7]}-56.2024.5.02.0001"
     case = Case(
         id=str(uuid.uuid4()),
-        case_number="0001234-56.2024.5.02.0001",
+        case_number=case_num,
         case_type=CaseType.TRABALHISTA.value,
         title="Reclamação Trabalhista - Teste",
         status=CaseStatus.PLANEJAMENTO.value,

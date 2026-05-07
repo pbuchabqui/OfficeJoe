@@ -24,6 +24,7 @@ from app.schemas.quesito import (
     QuesitoCreate,
     QuesitoResponse,
     QuesitoUpdate,
+    QuesitoImportRequest,
 )
 
 router = APIRouter(prefix="/cases/{case_id}/quesitos", tags=["Quesitos"])
@@ -62,6 +63,8 @@ async def create_quesito(
         sequence_number=payload.sequence_number,
         origin=payload.origin,
         question_text=payload.question_text,
+        tema=payload.tema,
+        tipo=payload.tipo,
         status=QuesitoStatus.PENDENTE.value,
     )
     db.add(quesito)
@@ -239,3 +242,97 @@ async def generate_ai_draft(
     await persist_audit(entry, db, case_id=case_id)
 
     return QuesitoAnswerResponse.model_validate(answer)
+
+
+@router.patch("/{quesito_id}", response_model=QuesitoResponse)
+async def update_quesito(
+    case_id: str,
+    quesito_id: str,
+    payload: QuesitoUpdate,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> QuesitoResponse:
+    """Atualiza um quesito existente."""
+    result = await db.execute(
+        select(Quesito)
+        .where(Quesito.id == quesito_id, Quesito.case_id == case_id)
+        .options(selectinload(Quesito.answers))
+    )
+    quesito = result.scalar_one_or_none()
+    if not quesito:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quesito não encontrado.")
+
+    if payload.question_text is not None:
+        quesito.question_text = payload.question_text
+    if payload.status is not None:
+        quesito.status = payload.status
+    if payload.tema is not None:
+        quesito.tema = payload.tema
+    if payload.tipo is not None:
+        quesito.tipo = payload.tipo
+
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="quesito",
+        resource_id=quesito_id,
+        details={"case_id": case_id, "updated_fields": payload.model_dump(exclude_none=True)},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    return QuesitoResponse.model_validate(quesito)
+
+
+@router.post("/batch/import", response_model=List[QuesitoResponse], status_code=status.HTTP_201_CREATED)
+async def batch_import_quesitos(
+    case_id: str,
+    payload: QuesitoImportRequest,
+    request: Request,
+    current_user=Depends(require_permission("quesito:write")),
+    db: AsyncSession = Depends(get_db),
+) -> List[QuesitoResponse]:
+    """Importa múltiplos quesitos em lote via JSON."""
+    case_result = await db.execute(select(Case).where(Case.id == case_id))
+    if not case_result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Processo não encontrado.")
+
+    quesito_ids = []
+    for quesito_data in payload.quesitos:
+        quesito = Quesito(
+            id=str(uuid.uuid4()),
+            case_id=case_id,
+            sequence_number=quesito_data.sequence_number,
+            origin=quesito_data.origin,
+            question_text=quesito_data.question_text,
+            tema=quesito_data.tema,
+            tipo=quesito_data.tipo,
+            status=QuesitoStatus.PENDENTE.value,
+        )
+        db.add(quesito)
+        quesito_ids.append(quesito.id)
+
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.QUESITO_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="quesito",
+        resource_id=case_id,
+        details={"batch_import": True, "quantity": len(quesito_ids)},
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    result = await db.execute(
+        select(Quesito)
+        .where(Quesito.id.in_(quesito_ids))
+        .options(selectinload(Quesito.answers))
+        .order_by(Quesito.sequence_number)
+    )
+    return [QuesitoResponse.model_validate(q) for q in result.scalars().all()]
