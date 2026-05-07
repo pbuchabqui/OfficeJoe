@@ -41,7 +41,13 @@ Para **desenvolvimento local**, os valores padrão funcionam. Para produção, a
 
 ### Stack Completo (Produção)
 
+**Nota:** Use `docker compose` (novo) ou `docker-compose` (antigo):
+
 ```bash
+# Docker Compose integrado (v1.29+) - RECOMENDADO
+docker compose up --build
+
+# Docker Compose standalone (versão antiga)
 docker-compose up --build
 ```
 
@@ -57,7 +63,8 @@ Serviços:
 Recomendado para desenvolvimento local:
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# ou (versão antiga): docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
 Benefícios:
