@@ -29,6 +29,44 @@ from app.db.models.holerite_extraction import (
     HoleriteLayoutVariant,
     VerbaTipo,
 )
+from app.db.models.timecard_extraction import (
+    TimecardExtraction,
+    TimecardDay,
+    TimecardDayField,
+    TimecardExtractionStatus,
+    TimecardFieldType,
+    TimecardFieldValidationStatus,
+    TimecardDayValidationStatus,
+    TimecardLayoutVariant,
+)
+from app.db.models.financial_statement_extraction import (
+    FinancialStatementExtraction,
+    FinancialStatementCompetency,
+    FinancialStatementRubric,
+    FinancialStatementExtractionStatus,
+    FinancialStatementLayoutVariant,
+    FinancialStatementValidationStatus,
+    FinancialRubricType,
+)
+from app.db.models.document_contradiction import (
+    DocumentContradiction,
+    DocumentContradictionStatus,
+)
+from app.db.models.calculation import (
+    Calculation,
+    CalculationVersion,
+    CalculationStatus,
+)
+from app.db.models.calculation_evidence_link import CalculationEvidenceLink
+from app.db.models.technical_diary_entry import TechnicalDiaryEntry
+from app.db.models.technical_diary_evidence_link import TechnicalDiaryEvidenceLink
+from app.db.models.report import (
+    Report,
+    ReportSection,
+    ReportStatus,
+    ReportSectionReviewStatus,
+)
+from app.db.models.report_section_evidence_matrix_link import ReportSectionEvidenceMatrixLink
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -57,4 +95,32 @@ __all__ = [
     "HoleriteFieldValidationStatus",
     "HoleriteLayoutVariant",
     "VerbaTipo",
+    "TimecardExtraction",
+    "TimecardDay",
+    "TimecardDayField",
+    "TimecardExtractionStatus",
+    "TimecardFieldType",
+    "TimecardFieldValidationStatus",
+    "TimecardDayValidationStatus",
+    "TimecardLayoutVariant",
+    "FinancialStatementExtraction",
+    "FinancialStatementCompetency",
+    "FinancialStatementRubric",
+    "FinancialStatementExtractionStatus",
+    "FinancialStatementLayoutVariant",
+    "FinancialStatementValidationStatus",
+    "FinancialRubricType",
+    "DocumentContradiction",
+    "DocumentContradictionStatus",
+    "Calculation",
+    "CalculationVersion",
+    "CalculationStatus",
+    "CalculationEvidenceLink",
+    "TechnicalDiaryEntry",
+    "TechnicalDiaryEvidenceLink",
+    "Report",
+    "ReportSection",
+    "ReportStatus",
+    "ReportSectionReviewStatus",
+    "ReportSectionEvidenceMatrixLink",
 ]
