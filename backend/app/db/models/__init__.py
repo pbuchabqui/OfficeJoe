@@ -16,6 +16,7 @@ from app.db.models.evidence_item import EvidenceItem
 from app.db.models.evidence_matrix_item import EvidenceMatrixItem
 from app.db.models.diligence import Diligence
 from app.db.models.diligence_item import DiligenceItem
+from app.db.models.technical_limitation import TechnicalLimitation
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -33,4 +34,5 @@ __all__ = [
     "EvidenceMatrixItem",
     "Diligence",
     "DiligenceItem",
+    "TechnicalLimitation",
 ]
