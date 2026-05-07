@@ -5,6 +5,7 @@ from app.db.models.page import Page
 from app.db.models.extraction import Extraction, ExtractionType
 from app.db.models.quesito import Quesito, QuesitoAnswer
 from app.db.models.question_evidence_link import QuestionEvidenceLink
+from app.db.models.question_draft_answer import QuestionDraftAnswer
 from app.db.models.audit_log import AuditLog
 from app.db.models.ai_output import AIOutput
 from app.db.models.processing_job import ProcessingJob, ProcessingJobStatus
@@ -25,6 +26,7 @@ __all__ = [
     "Page", "Extraction", "ExtractionType",
     "Quesito", "QuesitoAnswer",
     "QuestionEvidenceLink",
+    "QuestionDraftAnswer",
     "AuditLog", "AIOutput",
     "ProcessingJob", "ProcessingJobStatus",
     "FilePage",

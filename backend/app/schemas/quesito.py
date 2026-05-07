@@ -102,3 +102,23 @@ class QuestionEvidenceLinkResponse(BaseModel):
     evidence_item: EvidenceReference
 
     model_config = {"from_attributes": True}
+
+
+class QuestionDraftAnswerRequest(BaseModel):
+    """Request para gerar minuta de resposta com IA mockada."""
+    pass
+
+
+class QuestionDraftAnswerResponse(BaseModel):
+    """Resposta preliminar a um quesito gerada por IA mockada."""
+    id: str
+    quesito_id: str
+    case_id: str
+    draft_text: str
+    ai_model: str
+    confidence_score: float
+    evidence_ids_used: Optional[Dict[str, Any]]
+    generated_by_id: Optional[str]
+    is_reviewed: bool
+
+    model_config = {"from_attributes": True}

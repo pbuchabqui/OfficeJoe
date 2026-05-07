@@ -762,3 +762,256 @@ async def test_list_quesito_evidence(client, perito_token, sample_case, db_sessi
     assert len(data) == 2
     assert data[0]["id"] == evidence1.id
     assert data[1]["id"] == evidence2.id
+
+
+# ── Draft Answer Generation Tests ─────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_generate_draft_answer_success(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/generate-draft gera minuta com IA mockada."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+    from app.db.models.question_evidence_link import QuestionEvidenceLink
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Qual foi a receita total em 2023?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="A receita total foi de R$ 1.500.000,00",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    link = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito.id,
+        evidence_item_id=evidence.id,
+    )
+    db_session.add(link)
+    await db_session.flush()
+
+    payload = {}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/generate-draft",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["quesito_id"] == quesito.id
+    assert data["case_id"] == sample_case.id
+    assert data["ai_model"] == "mock-v1"
+    assert 0.0 <= data["confidence_score"] <= 1.0
+    assert len(data["draft_text"]) > 0
+    assert "ANÁLISE DAS EVIDÊNCIAS" in data["draft_text"]
+    assert data["is_reviewed"] is False
+    assert data["evidence_ids_used"] is not None
+
+
+@pytest.mark.asyncio
+async def test_generate_draft_without_evidence(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/generate-draft sem evidências retorna 400."""
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Pergunta sem evidências?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+    await db_session.flush()
+
+    payload = {}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/generate-draft",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 400
+    assert "Evidências vinculadas são obrigatórias" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_generate_draft_multiple_evidence(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/generate-draft com múltiplas evidências."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+    from app.db.models.question_evidence_link import QuestionEvidenceLink
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Qual foi a receita?",
+        tema="contábil",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence_items = []
+    for i in range(3):
+        evidence = EvidenceItem(
+            id=str(uuid.uuid4()),
+            case_id=sample_case.id,
+            document_id=document.id,
+            page_number=i + 1,
+            text_excerpt=f"Evidência {i + 1}",
+            evidence_type="financial",
+            reliability_level=3,
+        )
+        db_session.add(evidence)
+        evidence_items.append(evidence)
+
+    await db_session.flush()
+
+    for evidence in evidence_items:
+        link = QuestionEvidenceLink(
+            id=str(uuid.uuid4()),
+            quesito_id=quesito.id,
+            evidence_item_id=evidence.id,
+        )
+        db_session.add(link)
+
+    await db_session.flush()
+
+    payload = {}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/generate-draft",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["evidence_ids_used"]["count"] == 3
+    assert data["confidence_score"] >= 0.5  # Multiple evidence should have higher confidence
+
+
+@pytest.mark.asyncio
+async def test_generate_draft_nonexistent_quesito(client, perito_token, sample_case):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/generate-draft com quesito inexistente retorna 404."""
+    payload = {}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{str(uuid.uuid4())}/generate-draft",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 404
+    assert "Quesito não encontrado" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_generate_draft_financial_theme(client, perito_token, sample_case, db_session):
+    """POST /cases/{case_id}/quesitos/{quesito_id}/generate-draft com tema financeiro."""
+    from app.db.models.document import Document, DocumentStatus
+    from app.db.models.evidence_item import EvidenceItem
+    from app.db.models.question_evidence_link import QuestionEvidenceLink
+
+    quesito = Quesito(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        sequence_number=1,
+        origin="juizo",
+        question_text="Qual foi o fluxo de caixa?",
+        tema="financeiro",
+        tipo="técnico",
+        status=QuesitoStatus.PENDENTE.value,
+    )
+    db_session.add(quesito)
+
+    document = Document(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        original_filename="test_doc.pdf",
+        sha256_hash="abc123def456",
+        file_size_bytes=1024,
+        storage_bucket="test",
+        storage_key="test/doc.pdf",
+        status=DocumentStatus.INDEXED.value,
+    )
+    db_session.add(document)
+
+    evidence = EvidenceItem(
+        id=str(uuid.uuid4()),
+        case_id=sample_case.id,
+        document_id=document.id,
+        page_number=1,
+        text_excerpt="Fluxo de caixa positivo de R$ 500.000,00",
+        evidence_type="financial",
+        reliability_level=3,
+    )
+    db_session.add(evidence)
+    await db_session.flush()
+
+    link = QuestionEvidenceLink(
+        id=str(uuid.uuid4()),
+        quesito_id=quesito.id,
+        evidence_item_id=evidence.id,
+    )
+    db_session.add(link)
+    await db_session.flush()
+
+    payload = {}
+
+    response = await client.post(
+        f"/api/v1/cases/{sample_case.id}/quesitos/{quesito.id}/generate-draft",
+        json=payload,
+        headers={"Authorization": f"Bearer {perito_token}"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert "análise financeira" in data["draft_text"].lower()
+    assert data["ai_model"] == "mock-v1"
