@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import auth, cases, documents, quesitos, ai, processing_jobs, search, evidence, evidence_matrix, evidence_matrix_validator
+from app.api.v1 import auth, cases, documents, quesitos, ai, processing_jobs, search, evidence, evidence_matrix, evidence_matrix_validator, diligence
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -13,3 +13,4 @@ api_router.include_router(search.router)
 api_router.include_router(evidence.router)
 api_router.include_router(evidence_matrix.router)
 api_router.include_router(evidence_matrix_validator.router)
+api_router.include_router(diligence.router)

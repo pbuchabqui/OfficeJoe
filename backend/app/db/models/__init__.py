@@ -14,6 +14,8 @@ from app.db.models.document_inventory_item import DocumentInventoryItem
 from app.db.models.text_chunk import TextChunk
 from app.db.models.evidence_item import EvidenceItem
 from app.db.models.evidence_matrix_item import EvidenceMatrixItem
+from app.db.models.diligence import Diligence
+from app.db.models.diligence_item import DiligenceItem
 
 __all__ = [
     "User", "Case", "CaseParty", "CaseStatus",
@@ -29,4 +31,6 @@ __all__ = [
     "TextChunk",
     "EvidenceItem",
     "EvidenceMatrixItem",
+    "Diligence",
+    "DiligenceItem",
 ]
