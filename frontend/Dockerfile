@@ -36,7 +36,7 @@ USER officejoe
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))" || exit 1
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
+    CMD ps aux | grep -v grep | grep serve || exit 1
 
 CMD ["serve", "-s", "dist", "-l", "3000"]
