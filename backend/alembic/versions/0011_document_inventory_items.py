@@ -24,7 +24,6 @@ def upgrade() -> None:
             sa.String(36),
             sa.ForeignKey("documents.id", ondelete="CASCADE"),
             nullable=False,
-            index=True,
         ),
         sa.Column("document_class", sa.String(100), nullable=False),
         sa.Column("start_page", sa.Integer, nullable=False),

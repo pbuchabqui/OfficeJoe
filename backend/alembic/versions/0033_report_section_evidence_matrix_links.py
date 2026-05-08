@@ -2,7 +2,7 @@
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0033_report_section_evidence_matrix_links"
+revision = "0033_rpt_evid_matrix_links"
 down_revision = "0032_reports"
 branch_labels = None
 depends_on = None

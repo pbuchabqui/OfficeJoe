@@ -2,8 +2,8 @@
 import sqlalchemy as sa
 from alembic import op
 
-revision = "0034_report_section_ai_draft_fields"
-down_revision = "0033_report_section_evidence_matrix_links"
+revision = "0034_rpt_ai_draft_fields"
+down_revision = "0033_rpt_evid_matrix_links"
 branch_labels = None
 depends_on = None
 

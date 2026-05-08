@@ -27,21 +27,20 @@ def upgrade() -> None:
             sa.String(36),
             sa.ForeignKey("documents.id", ondelete="CASCADE"),
             nullable=False,
-            index=True,
         ),
-        sa.Column("page_number", sa.Integer, nullable=False, index=True),
+        sa.Column("page_number", sa.Integer, nullable=False),
         sa.Column("text", sa.Text, nullable=False),
         sa.Column("embedding", sa.String(10000), nullable=False),  # JSON-serialized vector
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
     )
 
-    # Índice para busca semântica (produto interno negado para similaridade)
-    op.execute(
-        "CREATE INDEX ix_text_chunks_embedding ON text_chunks USING ivfflat (embedding vector_ip_ops) WITH (lists = 100)"
-    )
+    # Índices para busca por documento e página
+    op.create_index("ix_text_chunks_document_id", "text_chunks", ["document_id"])
+    op.create_index("ix_text_chunks_page_number", "text_chunks", ["page_number"])
 
 
 def downgrade() -> None:
-    op.drop_index("ix_text_chunks_embedding", "text_chunks")
+    op.drop_index("ix_text_chunks_page_number", "text_chunks")
+    op.drop_index("ix_text_chunks_document_id", "text_chunks")
     op.drop_table("text_chunks")

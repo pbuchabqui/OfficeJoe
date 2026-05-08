@@ -3,7 +3,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "0035_report_checklist_items"
-down_revision = "0034_report_section_ai_draft_fields"
+down_revision = "0034_rpt_ai_draft_fields"
 branch_labels = None
 depends_on = None
 

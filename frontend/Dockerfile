@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* yarn.lock* ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (disable strict SSL for environments with intercepting proxies)
+RUN npm config set strict-ssl false && npm install
 
 # Copy source code
 COPY . .
@@ -23,7 +23,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install serve to run the production build
-RUN npm install -g serve
+RUN npm config set strict-ssl false && npm install -g serve
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist

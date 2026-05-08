@@ -172,7 +172,7 @@ class FinancialStatementCompetency(Base, UUIDPrimaryKey, TimestampMixin):
             "financial_statement_id",
             "competencia",
             "section_index",
-            name="uq_financial_statement_competencies_statement_competencia_section",
+            name="uq_fin_comp_statement_competencia_section",
         ),
     )
 

@@ -3,7 +3,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "0027_document_contradictions"
-down_revision = "0026_financial_statement_extractions"
+down_revision = "0026_fin_stmt_extractions"
 branch_labels = None
 depends_on = None
 

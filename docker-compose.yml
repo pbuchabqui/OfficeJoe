@@ -88,7 +88,7 @@ services:
       uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
       "
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -129,7 +129,6 @@ services:
     env_file: .env
     volumes:
       - ./backend:/app
-      - celery_beat_schedule:/app/celerybeat-schedule
     depends_on:
       db:
         condition: service_healthy
@@ -137,7 +136,7 @@ services:
         condition: service_healthy
     environment:
       PYTHONUNBUFFERED: "1"
-    command: celery -A app.tasks.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A app.tasks.celery_app beat --loglevel=info --schedule=/tmp/celerybeat-schedule
 
   # ── Flower (monitoramento Celery) ────────────────────────────────────────
   flower:
@@ -171,7 +170,7 @@ services:
       VITE_API_URL: http://backend:8000
       NODE_ENV: ${APP_ENV:-development}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "sh", "-c", "test -f /app/dist/index.html"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -184,9 +183,6 @@ volumes:
     driver: local
   minio_data:
     driver: local
-  celery_beat_schedule:
-    driver: local
-
 networks:
   default:
     name: officejoe-network
