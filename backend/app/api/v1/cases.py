@@ -4,9 +4,10 @@ Endpoints CRUD de processos periciais (Cases).
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from sqlalchemy import literal, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -20,8 +21,18 @@ from app.db.models.user import User
 from app.db.session import get_db
 from app.schemas.case import CaseCreate, CaseDetail, CaseSummary, CaseUpdate
 from app.schemas.search import OCRSearchResponse, OCRSearchResult
+from app.services.document_service import DocumentService
+from app.services.pdf_case_intake_service import inspect_pdf_for_case
 
 router = APIRouter(prefix="/cases", tags=["Processos Periciais"])
+
+
+def _fallback_case_number(filename: str) -> str:
+    stem = (filename or "documento.pdf").rsplit(".", 1)[0]
+    safe_stem = "".join(ch if ch.isalnum() else "-" for ch in stem.lower()).strip("-")
+    safe_stem = safe_stem[:28] or "pdf"
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    return f"PDF-{timestamp}-{safe_stem}-{uuid.uuid4().hex[:6]}"
 
 
 def _make_snippet(text_value: str, query: str, radius: int = 80) -> str:
@@ -232,6 +243,83 @@ async def create_case(
     return CaseDetail.model_validate(result.scalar_one())
 
 
+@router.post("/from-pdf", status_code=status.HTTP_201_CREATED)
+async def create_case_from_pdf(
+    request: Request,
+    file: UploadFile = File(...),
+    category: str = Form(default="autos_processuais"),
+    display_name: Optional[str] = Form(default=None),
+    current_user: User = Depends(require_permission("case:write")),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    filename = file.filename or "documento.pdf"
+    intake = inspect_pdf_for_case(file.file, filename)
+    case_number = intake.case_number or _fallback_case_number(filename)
+
+    existing = await db.execute(select(Case).where(Case.case_number == case_number))
+    if existing.scalar_one_or_none():
+        case_number = _fallback_case_number(filename)
+
+    case_id = str(uuid.uuid4())
+    case = Case(
+        id=case_id,
+        case_number=case_number,
+        case_type=intake.case_type,
+        title=intake.title,
+        description=intake.description,
+        court=intake.court,
+        responsible_user_id=current_user.id,
+    )
+    db.add(case)
+    await db.flush()
+
+    entry = log_audit(
+        action=AuditAction.CASE_CREATED,
+        user_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+        resource_type="case",
+        resource_id=case_id,
+        details={
+            "case_number": case_number,
+            "case_type": intake.case_type,
+            "source": "pdf_intake",
+            "extracted_case_number": intake.case_number,
+            "extracted_court": intake.court,
+        },
+    )
+    await persist_audit(entry, db, case_id=case_id)
+
+    document = await DocumentService(db).upload_document(
+        case_id=case_id,
+        file=file,
+        category=category,
+        display_name=display_name or filename,
+        description="Documento inicial usado para criar o processo.",
+        uploaded_by_id=current_user.id,
+        user_email=current_user.email,
+        ip_address=get_client_ip(request),
+    )
+
+    result = await db.execute(
+        select(Case).where(Case.id == case_id).options(selectinload(Case.parties))
+    )
+    created_case = result.scalar_one()
+
+    return {
+        "case": CaseDetail.model_validate(created_case),
+        "document_id": document.id,
+        "document_filename": document.original_filename,
+        "extracted": {
+            "case_number": intake.case_number,
+            "case_type": intake.case_type,
+            "title": intake.title,
+            "court": intake.court,
+            "has_text": bool(intake.extracted_text.strip()),
+        },
+    }
+
+
 @router.get("/{case_id}", response_model=CaseDetail)
 async def get_case(
     case_id: str,
@@ -264,6 +352,15 @@ async def update_case(
 
     old_status = case.status
     update_data = payload.model_dump(exclude_none=True)
+    if "case_number" in update_data and update_data["case_number"] != case.case_number:
+        existing = await db.execute(
+            select(Case).where(Case.case_number == update_data["case_number"], Case.id != case_id)
+        )
+        if existing.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Processo {update_data['case_number']} já cadastrado.",
+            )
     for field, value in update_data.items():
         setattr(case, field, value)
 

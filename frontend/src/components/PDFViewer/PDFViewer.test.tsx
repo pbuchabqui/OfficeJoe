@@ -8,6 +8,7 @@ import { PDFViewer } from './PDFViewer';
 
 // Mock do pdfjs-dist
 vi.mock('pdfjs-dist', () => ({
+  version: '4.9.155',
   getDocument: vi.fn(() => ({
     promise: Promise.resolve({
       numPages: 5,
@@ -26,6 +27,11 @@ vi.mock('pdfjs-dist', () => ({
 
 describe('PDFViewer', () => {
   const testPdfUrl = 'http://example.com/test.pdf';
+  const waitForPdfLoad = async () => {
+    await waitFor(() => {
+      expect(screen.getAllByText(/de 5/).length).toBeGreaterThan(0);
+    });
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,14 +43,13 @@ describe('PDFViewer', () => {
     // Verifica que os controles estão presentes
     expect(screen.getByLabelText('Página anterior')).toBeInTheDocument();
     expect(screen.getByLabelText('Próxima página')).toBeInTheDocument();
+    await waitForPdfLoad();
   });
 
   it('deve mostrar o número correto de páginas', async () => {
     render(<PDFViewer url={testPdfUrl} />);
 
-    await waitFor(() => {
-      expect(screen.getByText(/de 5/)).toBeInTheDocument();
-    });
+    await waitForPdfLoad();
   });
 
   it('deve desabilitar botão "anterior" na primeira página', async () => {
@@ -124,6 +129,7 @@ describe('PDFViewer', () => {
     // O componente renderiza, mas pode mostrar erro
     // Depende do mock do pdfjs
     expect(screen.getByLabelText('Página anterior')).toBeInTheDocument();
+    await waitForPdfLoad();
   });
 
   it('deve chamar onPageChange quando página muda', async () => {
@@ -136,23 +142,25 @@ describe('PDFViewer', () => {
     });
   });
 
-  it('deve respeitar dimensões customizadas', () => {
+  it('deve respeitar dimensões customizadas', async () => {
     const { container } = render(
       <PDFViewer url={testPdfUrl} width="800px" height="400px" />
     );
 
-    const viewer = container.querySelector('.container') as HTMLElement;
+    const viewer = container.firstElementChild as HTMLElement;
     expect(viewer.style.width).toBe('800px');
     expect(viewer.style.height).toBe('400px');
+    await waitForPdfLoad();
   });
 
-  it('deve aceitar className customizada', () => {
+  it('deve aceitar className customizada', async () => {
     const { container } = render(
       <PDFViewer url={testPdfUrl} className="custom-class" />
     );
 
-    const viewer = container.querySelector('.container');
+    const viewer = container.firstElementChild;
     expect(viewer).toHaveClass('custom-class');
+    await waitForPdfLoad();
   });
 
   it('deve desabilitar navegação quando carregando', async () => {

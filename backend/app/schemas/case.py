@@ -33,6 +33,8 @@ class CaseCreate(BaseModel):
 
 
 class CaseUpdate(BaseModel):
+    case_number: Optional[str] = None
+    case_type: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[str] = None

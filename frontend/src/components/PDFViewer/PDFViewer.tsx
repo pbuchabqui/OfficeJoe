@@ -45,6 +45,8 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
 
       try {
         const page = await pdfDoc.getPage(state.currentPage);
+        if (!canvasRef.current) return;
+
         const viewport = page.getViewport({ scale: 1.5 });
 
         const canvas = canvasRef.current;

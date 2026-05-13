@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
+from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 
 class FilePageResponse(BaseModel):
@@ -16,13 +16,13 @@ class FilePageResponse(BaseModel):
     preview_storage_key: str | None
     average_confidence: float | None
     low_confidence: bool
-    created_at: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
-    def model_post_init(self, __context: Any) -> None:
-        if not isinstance(self.created_at, str):
-            object.__setattr__(self, "created_at", str(self.created_at))
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return value.isoformat()
 
 
 class FilePagePreviewUrlResponse(BaseModel):

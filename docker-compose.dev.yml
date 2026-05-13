@@ -10,6 +10,7 @@ services:
     command: >
       sh -c "
       alembic upgrade head &&
+      python -m app.db.seed_admin &&
       uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
       "
     environment:
@@ -18,12 +19,17 @@ services:
       LOG_LEVEL: debug
 
   frontend:
+    build:
+      target: builder
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    entrypoint: []
     command: npm run dev -- --host 0.0.0.0
     environment:
-      VITE_API_URL: http://backend:8000
+      VITE_API_URL: http://localhost:8000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
 
   celery_worker:
     command: >
@@ -36,7 +42,7 @@ services:
       LOG_LEVEL: debug
 
   celery_beat:
-    command: celery -A app.tasks.celery_app beat --loglevel=debug --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A app.tasks.celery_app beat --loglevel=debug --schedule=/tmp/celerybeat-schedule
 
   flower:
     environment:

@@ -19,6 +19,16 @@ export const authService = {
     return data
   },
 
+  async createUser(payload: {
+    email: string
+    password: string
+    full_name: string
+    role: User['role']
+  }): Promise<User> {
+    const { data } = await apiClient.post<User>('/auth/users', payload)
+    return data
+  },
+
   isAuthenticated(): boolean {
     return !!localStorage.getItem('access_token')
   },

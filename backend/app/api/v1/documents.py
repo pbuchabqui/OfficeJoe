@@ -4,31 +4,149 @@ O arquivo original NUNCA é modificado após o upload.
 """
 from __future__ import annotations
 
+import re
+import uuid
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_client_ip, get_current_user, persist_audit, require_permission
 from app.core.audit import AuditAction, log_audit
 from app.db.models.document import Document
-from app.db.models.file_page import FilePage
+from app.db.models.file_page import FilePage, FilePageInitialStatus
+from app.db.models.page_classification import PageClassification
 from app.db.models.page_text_block import PageTextBlock
 from app.db.models.page import Page
 from app.db.models.extraction import Extraction
+from app.db.models.processing_job import ProcessingJob, ProcessingJobStatus
 from app.db.session import get_db
-from app.schemas.document import DocumentIntegrityResponse, DocumentResponse, ExtractionResponse, PageResponse
+from app.schemas.document import (
+    DocumentAnalysisSnippetResponse,
+    DocumentAnalysisSummaryResponse,
+    DocumentAnalysisTermResponse,
+    DocumentIntegrityResponse,
+    DocumentPericialAnalysisResponse,
+    DocumentProcessingProgressResponse,
+    DocumentResponse,
+    ExtractionResponse,
+    PageResponse,
+)
 from app.schemas.file_page import FilePagePreviewUrlResponse, FilePageResponse
 from app.schemas.page_text_block import FilePageOCRTextResponse, PageTextBlockResponse
 from app.schemas.page_classification import PageClassificationCorrectionRequest, PageClassificationResponse
 from app.services.document_service import DocumentService
 from app.services.inventory_service import generate_inventory, list_inventory, update_inventory_item
-from app.services.page_classification_service import PageClassificationService
+from app.services.page_classification_service import PageClassificationService, get_page_classification_provider
 from app.services.storage_service import get_storage_service
 from app.schemas.inventory import InventoryItemResponse, InventoryResponse, InventoryItemUpdateRequest
 
 router = APIRouter(prefix="/cases/{case_id}/documents", tags=["Documentos"])
+
+_STOPWORDS = {
+    "a", "ao", "aos", "as", "com", "como", "da", "das", "de", "do", "dos", "e", "em",
+    "na", "nas", "no", "nos", "o", "os", "ou", "para", "por", "que", "se", "um", "uma",
+    "uns", "umas", "não", "sim", "sua", "seu", "suas", "seus", "mais", "menos", "pela",
+    "pelo", "pelas", "pelos", "processo", "página", "pagina", "documento",
+}
+
+
+def _processing_progress_payload(
+    document: Document,
+    file_pages: list[FilePage],
+    job: ProcessingJob | None,
+) -> DocumentProcessingProgressResponse:
+    now = datetime.now(timezone.utc)
+    created_at = document.created_at
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=timezone.utc)
+
+    pages_total = document.total_pages or len(file_pages)
+    pages_registered = len(file_pages)
+    previews_completed = sum(
+        1 for page in file_pages if page.status_preview == FilePageInitialStatus.COMPLETED.value
+    )
+    ocr_completed = sum(
+        1 for page in file_pages if page.status_ocr == FilePageInitialStatus.COMPLETED.value
+    )
+    failed_pages = sum(
+        1
+        for page in file_pages
+        if page.status_preview == FilePageInitialStatus.FAILED.value
+        or page.status_ocr == FilePageInitialStatus.FAILED.value
+    )
+
+    if pages_total <= 0:
+        registration_ratio = 0.0
+        preview_ratio = 0.0
+        ocr_ratio = 0.0
+    else:
+        registration_ratio = min(pages_registered / pages_total, 1.0)
+        preview_ratio = min(previews_completed / pages_total, 1.0)
+        ocr_ratio = min(ocr_completed / pages_total, 1.0)
+
+    progress_percent = round(
+        10
+        + (15 * registration_ratio)
+        + (30 * preview_ratio)
+        + (45 * ocr_ratio)
+    )
+
+    status = "processing"
+    active_stage = "Registrando páginas"
+    if document.error_message or document.status == "error" or job and job.status == ProcessingJobStatus.FAILED.value:
+        status = "failed"
+        active_stage = "Falha no processamento"
+    elif pages_total > 0 and pages_registered >= pages_total and previews_completed >= pages_total and ocr_completed >= pages_total:
+        status = "completed"
+        active_stage = "Concluído"
+        progress_percent = 100
+    elif pages_registered < pages_total:
+        active_stage = "Registrando páginas"
+    elif previews_completed < pages_total:
+        active_stage = "Gerando visualizações"
+    elif ocr_completed < pages_total:
+        active_stage = "Extraindo texto por OCR"
+
+    progress_percent = max(0, min(progress_percent, 100))
+    elapsed_seconds = max(0, int((now - created_at).total_seconds()))
+    estimated_remaining_seconds: int | None = None
+    if status == "processing" and 0 < progress_percent < 100 and elapsed_seconds > 0:
+        estimated_remaining_seconds = round(elapsed_seconds * ((100 - progress_percent) / progress_percent))
+
+    return DocumentProcessingProgressResponse(
+        document_id=document.id,
+        case_id=document.case_id,
+        status=status,
+        active_stage=active_stage,
+        progress_percent=progress_percent,
+        pages_total=pages_total,
+        pages_registered=pages_registered,
+        previews_completed=previews_completed,
+        ocr_completed=ocr_completed,
+        failed_pages=failed_pages,
+        elapsed_seconds=elapsed_seconds,
+        estimated_remaining_seconds=estimated_remaining_seconds,
+        processing_job_id=job.id if job else None,
+        job_status=job.status if job else None,
+        updated_at=now,
+    )
+
+
+def _normalize_summary_text(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _top_terms(text: str) -> list[DocumentAnalysisTermResponse]:
+    words = re.findall(r"[A-Za-zÀ-ÿ0-9]{4,}", text.lower())
+    counter = Counter(word for word in words if word not in _STOPWORDS)
+    return [
+        DocumentAnalysisTermResponse(term=term, count=count)
+        for term, count in counter.most_common(10)
+    ]
 
 
 @router.post("", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
@@ -109,6 +227,180 @@ async def check_integrity(
         ip_address=get_client_ip(request),
     )
     return DocumentIntegrityResponse(**result)
+
+
+@router.get("/{document_id}/processing-progress", response_model=DocumentProcessingProgressResponse)
+async def get_document_processing_progress(
+    case_id: str,
+    document_id: str,
+    current_user=Depends(require_permission("document:read")),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentProcessingProgressResponse:
+    doc_result = await db.execute(
+        select(Document).where(Document.id == document_id, Document.case_id == case_id)
+    )
+    document = doc_result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    pages_result = await db.execute(
+        select(FilePage).where(FilePage.file_id == document_id).order_by(FilePage.page_number)
+    )
+    job_result = await db.execute(
+        select(ProcessingJob)
+        .where(ProcessingJob.document_id == document_id, ProcessingJob.case_id == case_id)
+        .order_by(ProcessingJob.created_at.desc())
+        .limit(1)
+    )
+    return _processing_progress_payload(
+        document=document,
+        file_pages=list(pages_result.scalars().all()),
+        job=job_result.scalar_one_or_none(),
+    )
+
+
+@router.get("/{document_id}/analysis-summary", response_model=DocumentAnalysisSummaryResponse)
+async def get_document_analysis_summary(
+    case_id: str,
+    document_id: str,
+    current_user=Depends(require_permission("document:read")),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentAnalysisSummaryResponse:
+    doc_result = await db.execute(
+        select(Document).where(Document.id == document_id, Document.case_id == case_id)
+    )
+    document = doc_result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    stats_result = await db.execute(
+        select(
+            func.count(PageTextBlock.id),
+            func.count(distinct(PageTextBlock.page_number)),
+            func.coalesce(func.sum(func.length(PageTextBlock.text)), 0),
+        ).where(PageTextBlock.file_id == document_id)
+    )
+    text_blocks, pages_with_text, extracted_text_chars = stats_result.one()
+
+    blocks_result = await db.execute(
+        select(PageTextBlock)
+        .where(PageTextBlock.file_id == document_id)
+        .order_by(PageTextBlock.page_number, PageTextBlock.y0, PageTextBlock.x0)
+        .limit(3000)
+    )
+    page_texts: dict[int, list[str]] = defaultdict(list)
+    all_text_parts: list[str] = []
+    for block in blocks_result.scalars().all():
+        clean_text = _normalize_summary_text(block.text)
+        if not clean_text:
+            continue
+        page_texts[block.page_number].append(clean_text)
+        all_text_parts.append(clean_text)
+
+    snippets = []
+    for page_number in sorted(page_texts)[:5]:
+        page_text = _normalize_summary_text(" ".join(page_texts[page_number]))
+        snippets.append(
+            DocumentAnalysisSnippetResponse(
+                page_number=page_number,
+                text=page_text[:700],
+            )
+        )
+
+    status_value = "ready" if text_blocks else "empty"
+    full_text_sample = " ".join(all_text_parts)[:40000]
+    return DocumentAnalysisSummaryResponse(
+        document_id=document_id,
+        case_id=case_id,
+        status=status_value,
+        pages_total=document.total_pages or 0,
+        pages_with_text=int(pages_with_text or 0),
+        text_blocks=int(text_blocks or 0),
+        extracted_text_chars=int(extracted_text_chars or 0),
+        top_terms=_top_terms(full_text_sample),
+        snippets=snippets,
+    )
+
+
+@router.post("/{document_id}/pericial-analysis", response_model=DocumentPericialAnalysisResponse)
+async def run_document_pericial_analysis(
+    case_id: str,
+    document_id: str,
+    current_user=Depends(require_permission("document:write")),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentPericialAnalysisResponse:
+    doc_result = await db.execute(
+        select(Document).where(Document.id == document_id, Document.case_id == case_id)
+    )
+    document = doc_result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Documento não encontrado.")
+
+    pages_result = await db.execute(
+        select(FilePage).where(FilePage.file_id == document_id).order_by(FilePage.page_number)
+    )
+    file_pages = list(pages_result.scalars().all())
+    if not file_pages:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="O processamento técnico ainda não registrou as páginas do PDF.",
+        )
+
+    text_result = await db.execute(
+        select(PageTextBlock.file_page_id, PageTextBlock.text)
+        .where(PageTextBlock.file_id == document_id)
+        .order_by(PageTextBlock.page_number, PageTextBlock.y0, PageTextBlock.x0)
+    )
+    text_by_page: dict[str, list[str]] = defaultdict(list)
+    for file_page_id, text_value in text_result.all():
+        if text_value:
+            text_by_page[file_page_id].append(text_value)
+
+    existing_result = await db.execute(
+        select(PageClassification).where(PageClassification.file_id == document_id)
+    )
+    classifications_by_page = {
+        classification.file_page_id: classification
+        for classification in existing_result.scalars().all()
+    }
+
+    provider = get_page_classification_provider()
+    for file_page in file_pages:
+        page_text = _normalize_summary_text(" ".join(text_by_page.get(file_page.id, [])))[:12000]
+        ai_response = await provider.classify_page(page_text)
+        classification = classifications_by_page.get(file_page.id)
+        if not classification:
+            classification = PageClassification(
+                id=str(uuid.uuid4()),
+                file_page_id=file_page.id,
+                file_id=file_page.file_id,
+                page_number=file_page.page_number,
+            )
+            db.add(classification)
+
+        classification.document_class = ai_response.document_class
+        classification.confidence = ai_response.confidence
+        classification.rationale = ai_response.rationale
+        classification.provider = provider.provider_name
+        classification.model_name = provider.model_name
+        classification.raw_response = ai_response.model_dump()
+
+    await db.flush()
+    inventory_items = await generate_inventory(db, document_id)
+    inventory = InventoryResponse(
+        document_id=document_id,
+        total_groups=len(inventory_items),
+        items=[InventoryItemResponse.model_validate(item) for item in inventory_items],
+    )
+    return DocumentPericialAnalysisResponse(
+        document_id=document_id,
+        case_id=case_id,
+        status="completed",
+        pages_total=len(file_pages),
+        pages_classified=len(file_pages),
+        inventory=inventory,
+        message="Classificação documental e inventário dos autos concluídos.",
+    )
 
 
 @router.get("/{document_id}/download-url")

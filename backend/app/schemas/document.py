@@ -1,6 +1,11 @@
 from __future__ import annotations
+
+from datetime import datetime
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel
+
+from pydantic import BaseModel, field_serializer
+
+from app.schemas.inventory import InventoryResponse
 
 
 class DocumentResponse(BaseModel):
@@ -20,13 +25,13 @@ class DocumentResponse(BaseModel):
     error_message: Optional[str]
     is_original_preserved: bool
     processing_job_id: Optional[str] = None
-    created_at: str
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
-    def model_post_init(self, __context: Any) -> None:
-        if hasattr(self, "created_at") and not isinstance(self.created_at, str):
-            object.__setattr__(self, "created_at", str(self.created_at))
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        return value.isoformat()
 
 
 class DocumentIntegrityResponse(BaseModel):
@@ -34,6 +39,60 @@ class DocumentIntegrityResponse(BaseModel):
     sha256_hash: str
     integrity_ok: bool
     filename: str
+
+
+class DocumentProcessingProgressResponse(BaseModel):
+    document_id: str
+    case_id: str
+    status: str
+    active_stage: str
+    progress_percent: int
+    pages_total: int
+    pages_registered: int
+    previews_completed: int
+    ocr_completed: int
+    failed_pages: int
+    elapsed_seconds: int
+    estimated_remaining_seconds: Optional[int] = None
+    processing_job_id: Optional[str] = None
+    job_status: Optional[str] = None
+    updated_at: datetime
+
+    @field_serializer("updated_at")
+    def serialize_updated_at(self, value: datetime) -> str:
+        return value.isoformat()
+
+
+class DocumentAnalysisTermResponse(BaseModel):
+    term: str
+    count: int
+
+
+class DocumentAnalysisSnippetResponse(BaseModel):
+    page_number: int
+    text: str
+
+
+class DocumentAnalysisSummaryResponse(BaseModel):
+    document_id: str
+    case_id: str
+    status: str
+    pages_total: int
+    pages_with_text: int
+    text_blocks: int
+    extracted_text_chars: int
+    top_terms: List[DocumentAnalysisTermResponse]
+    snippets: List[DocumentAnalysisSnippetResponse]
+
+
+class DocumentPericialAnalysisResponse(BaseModel):
+    document_id: str
+    case_id: str
+    status: str
+    pages_total: int
+    pages_classified: int
+    inventory: InventoryResponse
+    message: str
 
 
 class PageResponse(BaseModel):

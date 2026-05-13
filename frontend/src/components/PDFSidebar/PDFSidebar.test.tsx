@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { PDFSidebar } from './PDFSidebar';
 import { PageSidebarData } from '../../types/sidebar';
 
@@ -37,7 +37,9 @@ describe('PDFSidebar', () => {
 
   it('deve exibir classificação documental', () => {
     render(<PDFSidebar data={BASE_DATA} currentPage={1} />);
-    expect(screen.getByText('holerite')).toBeInTheDocument();
+    const classificationSection = screen.getByText('Classificação').closest('section');
+    expect(classificationSection).not.toBeNull();
+    expect(within(classificationSection as HTMLElement).getByText('holerite')).toBeInTheDocument();
   });
 
   it('deve exibir "Validado" quando status é validated', () => {

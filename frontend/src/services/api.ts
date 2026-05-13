@@ -1,4 +1,4 @@
-import axios, { AxiosError, type AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosHeaders, type AxiosInstance } from 'axios'
 import type { ApiError } from '@/types'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -33,8 +33,9 @@ apiClient.interceptors.response.use(
           localStorage.setItem('access_token', data.access_token)
           localStorage.setItem('refresh_token', data.refresh_token)
           if (original) {
-            original.headers = original.headers ?? {}
-            original.headers.Authorization = `Bearer ${data.access_token}`
+            const headers = AxiosHeaders.from(original.headers)
+            headers.set('Authorization', `Bearer ${data.access_token}`)
+            original.headers = headers
             return apiClient(original)
           }
         } catch {

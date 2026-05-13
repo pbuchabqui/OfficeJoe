@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 
 class ProcessingJobResponse(BaseModel):
@@ -14,13 +15,11 @@ class ProcessingJobResponse(BaseModel):
     celery_task_id: Optional[str]
     error_message: Optional[str]
     result: Optional[dict[str, Any]]
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
 
-    def model_post_init(self, __context: Any) -> None:
-        if not isinstance(self.created_at, str):
-            object.__setattr__(self, "created_at", str(self.created_at))
-        if not isinstance(self.updated_at, str):
-            object.__setattr__(self, "updated_at", str(self.updated_at))
+    @field_serializer("created_at", "updated_at")
+    def serialize_datetime(self, value: datetime) -> str:
+        return value.isoformat()
